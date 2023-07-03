@@ -1,23 +1,37 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
+  final idController = TextEditingController();
+  final pwController = TextEditingController();
 
   late String id; // late를 붙여줘야 하는 이유 ?
   late String password;
 
-  void validateAndSave() {
+  void validateAndSave() async {
     final form = formKey.currentState;
     if (form!.validate()) {
       form.save();
-      print('Form is valid ID: $id, PW: $password');
-    } else {
-      print('Form is invalid ID: $id, PW: $password');
+    }
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: idController.text,
+        password: pwController.text,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('wrong email');
+      } else if (e.code == 'wrong-password') {
+        print('wrong password');
+      }
     }
   }
 
@@ -26,8 +40,8 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 101, 222, 105),
-        title: Text('로그인 페이지'),
+        backgroundColor: const Color.fromARGB(255, 101, 222, 105),
+        title: const Text('로그인 페이지'),
       ),
       body: Container(
         padding: const EdgeInsets.all(50),
@@ -36,11 +50,12 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              SizedBox(height: 200),
+              const SizedBox(height: 200),
               Container(
                 color: Colors.white,
                 child: TextFormField(
-                  decoration: InputDecoration(
+                  controller: idController,
+                  decoration: const InputDecoration(
                       labelText: 'ID',
                       border: OutlineInputBorder(),
                       hintText: '아이디를 입력하세요'),
@@ -53,8 +68,9 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 color: Colors.white,
                 child: TextFormField(
+                  controller: pwController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       labelText: 'PW',
                       border: OutlineInputBorder(),
                       hintText: '비밀번호를 입력하세요'),
@@ -63,14 +79,14 @@ class _LoginPageState extends State<LoginPage> {
                   onSaved: (value) => password = value!,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               Container(
                 height: 50,
                 width: 25,
                 decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 101, 222, 105),
+                    color: const Color.fromARGB(255, 101, 222, 105),
                     borderRadius: BorderRadius.circular(50)),
                 child: TextButton(
                   onPressed: validateAndSave,
