@@ -1,4 +1,3 @@
-@override
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -7,7 +6,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final formKey = new GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   late String id; // late를 붙여줘야 하는 이유 ?
   late String password;
