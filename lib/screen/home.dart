@@ -12,13 +12,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: const Drawer(),
       appBar: AppBar(
         backgroundColor: Colors.lightGreen.withOpacity(0.1),
-        actions: [
-          IconButton(
-            onPressed: signUserOut,
-            icon: const Icon(Icons.logout),
-          )
+        actions: const [
+          // IconButton(
+          //   onPressed: signUserOut,
+          //   icon: const Icon(Icons.logout),
+          // )
         ],
       ),
       body: NaverMap(
