@@ -27,12 +27,51 @@ class LoginPageState extends State<LoginPage> {
         password: pwController.text,
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('wrong email');
+      Navigator.pop(context);
+      //print(e);
+      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
+        wrongEmailMessage();
+        // setState(() {
+        //   wrongId = true;
+        // });
+        //print('wrong email');
       } else if (e.code == 'wrong-password') {
-        print('wrong password');
+        wrongPasswordMessage();
+        // setState(() {
+        //   wrongPw = true;
+        // });
+        //print('wrong password');
       }
     }
+  }
+  
+  void wrongEmailMessage() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          title: Text('존재하지 않는 이메일 입니다.'),
+        );
+      },
+    );
+  }
+
+  void wrongPasswordMessage() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const AlertDialog(
+          title: Text('비밀번호가 틀렸습니다.'),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    idController.dispose();
+    pwController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,7 +100,6 @@ class LoginPageState extends State<LoginPage> {
                       IconLocation(),
                     ],
                   ),
-                ],
               ),
             ),
             const SizedBox(
@@ -240,3 +278,38 @@ class LocationIcon extends StatelessWidget {
     );
   }
 }
+            
+// class WrongInfo extends StatelessWidget {
+//   const WrongInfo({
+//     super.key,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (LoginPageState.wrongId == true) {
+//       return const Padding(
+//         padding: EdgeInsets.all(15),
+//         child: Text(
+//           "Wrong Email!!",
+//           style: TextStyle(
+//             color: Colors.red,
+//           ),
+//         ),
+//       );
+//     } else if (LoginPageState.wrongPw == true) {
+//       return const Padding(
+//         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+//         child: Text(
+//           "Wrong Password!!",
+//           style: TextStyle(
+//             color: Colors.red,
+//           ),
+//         ),
+//       );
+//     } else {
+//       return const SizedBox(
+//         height: 50,
+//       );
+//     }
+//   }
+// }
