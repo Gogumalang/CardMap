@@ -45,7 +45,8 @@ class LoginPageState extends State<LoginPage> {
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      if (e.code == 'user-not-found') {
+      //print(e);
+      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
         wrongEmailMessage();
         // setState(() {
         //   wrongId = true;
@@ -123,7 +124,7 @@ class LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 100,
           ),
           Container(
@@ -154,7 +155,7 @@ class LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 42,
                       ),
                       TextButton(
@@ -172,7 +173,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 80),
                   Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: TextFormField(
                       controller: idController,
                       decoration: const InputDecoration(
@@ -185,7 +186,7 @@ class LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: TextFormField(
                       controller: pwController,
                       obscureText: true,
@@ -223,19 +224,19 @@ class LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextButton(
                         onPressed: () {},
-                        child: Text("자동완성"),
+                        child: const Text("자동완성"),
                       ),
                       TextButton(
                         onPressed: () {},
                         child: const Text(
                           'Forgot Password',
-                          style: TextStyle(color: Colors.black, fontSize: 15),
+                          style: TextStyle(fontSize: 15),
                         ),
                       ),
                     ],
