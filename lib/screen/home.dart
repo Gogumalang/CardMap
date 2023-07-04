@@ -1,15 +1,25 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  void signUserOut() {
+    FirebaseAuth.instance.signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightGreen.withOpacity(0.1),
+        actions: [
+          IconButton(
+            onPressed: signUserOut,
+            icon: const Icon(Icons.logout),
+          )
+        ],
       ),
       body: NaverMap(
         options: const NaverMapViewOptions(
