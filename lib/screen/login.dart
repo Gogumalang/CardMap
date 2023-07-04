@@ -172,15 +172,12 @@ class LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      //SizedBox(width: 0.2),
                       TextButton(
                         onPressed: () {},
                         child: Text("자동완성"),
                       ),
                       TextButton(
-                        onPressed: () {
-                          //TODO FORGOT PASSWORD SCREEN GOES HERE
-                        },
+                        onPressed: () {},
                         child: const Text(
                           'Forgot Password',
                           style: TextStyle(color: Colors.black, fontSize: 15),
