@@ -1,3 +1,4 @@
+import 'package:cardmap/screen/login.dart';
 import 'package:cardmap/screen/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
               height: 90,
             ),
             Container(
-              height: 492,
+              height: 520,
               decoration: const BoxDecoration(
                 // 동글동글한 흰색 Box
                 color: Colors.white,
@@ -114,13 +115,6 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       children: [
                         Stack(
                           children: [
-                            Container(
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Colors.lightGreen),
-                                ),
-                              ),
-                            ),
                             TextButton(
                               // 로그인 버튼
                               style: const ButtonStyle(),
@@ -128,34 +122,25 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               child: const Column(
                                 children: [
                                   Text(
-                                    "로그인",
+                                    "비밀번호 찾기",
                                     style: TextStyle(
                                       color: Colors.lightGreen,
                                       fontSize: 28,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    "새로운 비밀번호를 재발급받을 이메일을 입력해주세요.",
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 13),
+                                  ),
                                 ],
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(
-                          width: 42,
-                        ),
-                        TextButton(
-                          // 회원가입 버튼
-                          onPressed: () {
-                            Get.to(SignUpPage());
-                          },
-                          child: const Text(
-                            "회원가입",
-                            style: TextStyle(
-                              color: Colors.lightGreen,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -166,44 +151,13 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       child: TextFormField(
                         controller: idController,
                         decoration: const InputDecoration(
-                            labelText: 'ID',
+                            labelText: 'Email',
                             border: OutlineInputBorder(),
-                            hintText: '아이디를 입력하세요'),
+                            hintText: '이메일을 입력하세요'),
                         validator: (value) =>
                             value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
                         onSaved: (value) => id = value!,
                       ),
-                    ),
-                    Padding(
-                      // PW 입력란
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 6),
-                      child: TextFormField(
-                        controller: pwController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                            labelText: 'PW',
-                            border: OutlineInputBorder(),
-                            hintText: '비밀번호를 입력하세요'),
-                        validator: (value) =>
-                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                        onSaved: (value) => password = value!,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      // Forgot Password 입력란
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Forgot Password',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                      ],
                     ),
                     SizedBox(height: 34),
                     Row(
@@ -217,10 +171,13 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               color: const Color.fromARGB(255, 156, 221, 82),
                               borderRadius: BorderRadius.circular(50)),
                           child: TextButton(
-                            onPressed: validateAndSave,
+                            onPressed: () {
+                              Get.to(LoginPage(),
+                                  transition: Transition.noTransition);
+                            },
                             child: const Center(
                               child: Text(
-                                "시작하기",
+                                "로그인",
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -232,7 +189,6 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
                   ],
                 ),
               ),

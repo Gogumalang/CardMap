@@ -3,6 +3,7 @@
 import 'package:cardmap/screen/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -88,45 +89,44 @@ class SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightGreen,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 110),
-            Center(child: Image.asset('assets/images/CardmapLogo.png')),
-            const SizedBox(
-              height: 50,
+      //backgroundColor: Colors.lightGreen,
+      body: Stack(
+        children: [
+          NaverMap(
+            options: NaverMapViewOptions(
+              initialCameraPosition: NCameraPosition(
+                  target: NLatLng(36.1030521, 129.391357), zoom: 14.5),
             ),
-            Container(
-              height: 600,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(60),
-                  topRight: Radius.circular(60),
-                  bottomLeft: Radius.circular(60),
-                  bottomRight: Radius.circular(60),
+          ),
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 110),
+                Center(child: Image.asset('assets/images/CardmapLogo.png')),
+                const SizedBox(
+                  height: 50,
                 ),
-              ),
-              padding: const EdgeInsets.all(50),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
+                Container(
+                  height: 600,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(60),
+                      topRight: Radius.circular(60),
+                      bottomLeft: Radius.circular(60),
+                      bottomRight: Radius.circular(60),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(50),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Colors.lightGreen),
-                                ),
-                              ),
-                            ),
                             TextButton(
                               style: const ButtonStyle(),
                               onPressed: () {
@@ -144,13 +144,10 @@ class SignUpPageState extends State<SignUpPage> {
                                     ),
                                   ),
                                 ],
-                              ),
+                               ),
+                            const SizedBox(
+                              width: 42,
                             ),
-                          ],
-                        ),
-                        const SizedBox(
-                          width: 42,
-                        ),
                         Container(
                           decoration: const BoxDecoration(
                               border: BorderDirectional(
@@ -234,57 +231,21 @@ class SignUpPageState extends State<SignUpPage> {
                                   fontSize: 20,
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class IconLocation extends StatelessWidget {
-  const IconLocation({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-        offset: const Offset(0, 70),
-        child: const Center(
-          child: Icon(
-            Icons.sim_card,
-            size: 60,
           ),
-        ));
-  }
-}
-
-class LocationIcon extends StatelessWidget {
-  const LocationIcon({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, 20),
-      child: const Center(
-          child: Icon(
-        Icons.location_on_rounded,
-        size: 200,
-        color: Colors.white,
-      )),
+        ],
+      ),
     );
   }
 }
