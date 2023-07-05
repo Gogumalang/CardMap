@@ -1,7 +1,9 @@
 import 'package:cardmap/screen/more.dart';
+import 'package:cardmap/screen/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +16,6 @@ class _HomePageState extends State<HomePage> {
   late Position position;
   late NCameraPosition cameraPosition;
   bool isReady = false;
-
   @override
   void initState() {
     // 현재 위치를 받아오기
@@ -80,8 +81,13 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     child: TextButton(
-                      child: const Text("검색창"),
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.to(const SearchScreen());
+                      },
+                      child: const Text(
+                        "search",
+                        style: TextStyle(color: Colors.black26),
+                      ),
                     ),
                   ),
                   const SizedBox(
