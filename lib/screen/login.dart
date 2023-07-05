@@ -25,11 +25,22 @@ class LoginPageState extends State<LoginPage> {
     if (form!.validate()) {
       form.save();
     }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: idController.text,
         password: pwController.text,
       );
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       //print(e);
@@ -148,7 +159,7 @@ class LoginPageState extends State<LoginPage> {
                         TextButton(
                           // 회원가입 버튼
                           onPressed: () {
-                            Get.to(SignUpPage());
+                            Get.to(const SignUpPage());
                           },
                           child: const Text(
                             "회원가입",

@@ -1,5 +1,4 @@
 import 'package:cardmap/screen/more.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _key, //drawer
-      endDrawer: const MorePage(), //drawer
+      endDrawer: MorePage(), //drawer
       body: Stack(
         children: [
           isReady
