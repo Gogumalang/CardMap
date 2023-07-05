@@ -1,5 +1,6 @@
 import 'package:cardmap/firebase_options.dart';
 import 'package:cardmap/screen/auth.dart';
+import 'package:cardmap/screen/forgot.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(home: AuthPage()
+    return const GetMaterialApp(home: ForgotPasswordPage()
         //       Scaffold(
         //   body: NaverMap(
         //     options: const NaverMapViewOptions(),
