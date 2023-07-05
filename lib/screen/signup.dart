@@ -17,57 +17,64 @@ class SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   final idController = TextEditingController();
   final pwController = TextEditingController();
+  final confirmPwController = TextEditingController();
 
   late String id;
   late String password;
 
-  void validateAndSave() async {
+  void signUserUp() async {
     final form = formKey.currentState;
     if (form!.validate()) {
       form.save();
     }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: idController.text,
-        password: pwController.text,
-      );
+      if (pwController.text == confirmPwController.text) {
+        await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: idController.text,
+              password: pwController.text,
+            )
+            .then((value) => Navigator.pop(context));
+      } else {
+        Navigator.pop(context);
+        errorMessage('비밀번호가 일치하지 않습니다.');
+      }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       //print(e);
-      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
-        wrongEmailMessage();
-        // setState(() {
-        //   wrongId = true;
-        // });
-        //print('wrong email');
-      } else if (e.code == 'wrong-password') {
-        wrongPasswordMessage();
-        // setState(() {
-        //   wrongPw = true;
-        // });
-        //print('wrong password');
+      if (e.code == 'email-already-in-use') {
+        errorMessage('이미 사용중인 이메일 입니다.');
+      } else if (e.code == 'weak-password') {
+        errorMessage('비밀번호가 6자리 이상이어야 합니다.');
       }
     }
   }
 
-  void wrongEmailMessage() {
+  void errorMessage(String message) {
     showDialog(
       context: context,
       builder: (context) {
-        return const AlertDialog(
-          title: Text('존재하지 않는 이메일 입니다.'),
-        );
-      },
-    );
-  }
-
-  void wrongPasswordMessage() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const AlertDialog(
-          title: Text('비밀번호가 틀렸습니다.'),
-        );
+        return AlertDialog(title: Text(message), actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.labelLarge,
+            ),
+            child: const Text('확인'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ]);
       },
     );
   }
@@ -97,12 +104,11 @@ class SignUpPageState extends State<SignUpPage> {
               children: [
                 const SizedBox(height: 110),
                 Center(child: Image.asset('assets/images/CardmapLogo.png')),
-                const SizedBox(height: 20),
                 const SizedBox(
-                  height: 70,
+                  height: 50,
                 ),
                 Container(
-                  height: 492,
+                  height: 600,
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
@@ -121,115 +127,111 @@ class SignUpPageState extends State<SignUpPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Stack(
-                              children: [
-                                Container(
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom:
-                                          BorderSide(color: Colors.lightGreen),
+                            TextButton(
+                              style: const ButtonStyle(),
+                              onPressed: () {
+                                Get.to(() => const LoginPage(),
+                                    transition: Transition.noTransition);
+                              },
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    "로그인",
+                                    style: TextStyle(
+                                      color: Colors.lightGreen,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                ),
-                                TextButton(
-                                  style: const ButtonStyle(),
-                                  onPressed: () {
-                                    Get.to(LoginPage());
-                                  },
-                                  child: const Column(
-                                    children: [
-                                      Text(
-                                        "로그인",
-                                        style: TextStyle(
-                                          color: Colors.lightGreen,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                                ],
+                               ),
                             const SizedBox(
                               width: 42,
                             ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                "회원가입",
-                                style: TextStyle(
-                                  color: Colors.lightGreen,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                        Container(
+                          decoration: const BoxDecoration(
+                              border: BorderDirectional(
+                                  bottom: BorderSide(
+                                      width: 2, color: Colors.lightGreen))),
+                          child: TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              "회원가입",
+                              style: TextStyle(
+                                color: Colors.lightGreen,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 60),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextFormField(
-                            controller: idController,
-                            decoration: const InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder(),
-                                hintText: '이메일을 입력하세요'),
-                            validator: (value) =>
-                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                            onSaved: (value) => id = value!,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                          child: TextFormField(
-                            controller: pwController,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                                labelText: 'PW',
-                                border: OutlineInputBorder(),
-                                hintText: '비밀번호를 입력하세요'),
-                            validator: (value) =>
-                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                            onSaved: (value) => password = value!,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                          child: TextFormField(
-                            controller: pwController,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                                labelText: 'PW 확인',
-                                border: OutlineInputBorder(),
-                                hintText: '비밀번호를 입력하세요'),
-                            validator: (value) =>
-                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                            onSaved: (value) => password = value!,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 50,
-                              width: 260,
-                              decoration: BoxDecoration(
-                                  color:
-                                      const Color.fromARGB(255, 156, 221, 82),
-                                  borderRadius: BorderRadius.circular(50)),
-                              child: TextButton(
-                                onPressed: validateAndSave,
-                                child: const Center(
-                                  child: Text(
-                                    "시작하기",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                      ],
+                    ),
+                    const SizedBox(height: 38),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextFormField(
+                        controller: idController,
+                        decoration: const InputDecoration(
+                            labelText: 'Email',
+                            labelStyle: TextStyle(color: Colors.black38),
+                            border: OutlineInputBorder(),
+                            hintText: '이메일을 입력하세요'),
+                        validator: (value) =>
+                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                        onSaved: (value) => id = value!,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                      child: TextFormField(
+                        controller: pwController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                            labelText: 'Password',
+                            labelStyle: TextStyle(color: Colors.black38),
+                            border: OutlineInputBorder(),
+                            hintText: '비밀번호를 입력하세요'),
+                        validator: (value) =>
+                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                        onSaved: (value) => password = value!,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                      child: TextFormField(
+                        controller: confirmPwController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                            labelText: 'Confirm Password',
+                            labelStyle: TextStyle(color: Colors.black38),
+                            border: OutlineInputBorder(),
+                            hintText: '비밀번호를 입력하세요'),
+                        validator: (value) =>
+                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                        onSaved: (value) => password = value!,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 260,
+                          decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 156, 221, 82),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: TextButton(
+                            onPressed: signUserUp,
+                            child: const Center(
+                              child: Text(
+                                "시작하기",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+
                                 ),
                               ),
                             ),
@@ -247,75 +249,3 @@ class SignUpPageState extends State<SignUpPage> {
     );
   }
 }
-
-class IconLocation extends StatelessWidget {
-  const IconLocation({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-        offset: const Offset(0, 70),
-        child: const Center(
-          child: Icon(
-            Icons.sim_card,
-            size: 60,
-          ),
-        ));
-  }
-}
-
-class LocationIcon extends StatelessWidget {
-  const LocationIcon({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, 20),
-      child: const Center(
-          child: Icon(
-        Icons.location_on_rounded,
-        size: 200,
-        color: Colors.white,
-      )),
-    );
-  }
-}
-            
-// class WrongInfo extends StatelessWidget {
-//   const WrongInfo({
-//     super.key,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (LoginPageState.wrongId == true) {
-//       return const Padding(
-//         padding: EdgeInsets.all(15),
-//         child: Text(
-//           "Wrong Email!!",
-//           style: TextStyle(
-//             color: Colors.red,
-//           ),
-//         ),
-//       );
-//     } else if (LoginPageState.wrongPw == true) {
-//       return const Padding(
-//         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 0),
-//         child: Text(
-//           "Wrong Password!!",
-//           style: TextStyle(
-//             color: Colors.red,
-//           ),
-//         ),
-//       );
-//     } else {
-//       return const SizedBox(
-//         height: 50,
-//       );
-//     }
-//   }
-// }

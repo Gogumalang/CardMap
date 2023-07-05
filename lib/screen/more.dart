@@ -55,10 +55,10 @@ class MorePage extends StatelessWidget {
                   ),
                 ),
               ),
-              const Center(
+              Center(
                 child: Text(
-                  "1004@gmail.com",
-                  style: TextStyle(color: Colors.black54),
+                  user.email!,
+                  style: const TextStyle(color: Colors.black54),
                 ),
               ),
               const SizedBox(
