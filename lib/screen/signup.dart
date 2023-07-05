@@ -89,10 +89,9 @@ class SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: Colors.lightGreen,
       body: Stack(
         children: [
-          NaverMap(
+          const NaverMap(
             options: NaverMapViewOptions(
               initialCameraPosition: NCameraPosition(
                   target: NLatLng(36.1030521, 129.391357), zoom: 14.5),
@@ -144,94 +143,97 @@ class SignUpPageState extends State<SignUpPage> {
                                     ),
                                   ),
                                 ],
-                               ),
+                              ),
+                            ),
                             const SizedBox(
                               width: 42,
                             ),
-                        Container(
-                          decoration: const BoxDecoration(
-                              border: BorderDirectional(
-                                  bottom: BorderSide(
-                                      width: 2, color: Colors.lightGreen))),
-                          child: TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              "회원가입",
-                              style: TextStyle(
-                                color: Colors.lightGreen,
-                                fontSize: 28,
-                                fontWeight: FontWeight.w500,
+                            Container(
+                              decoration: const BoxDecoration(
+                                  border: BorderDirectional(
+                                      bottom: BorderSide(
+                                          width: 2, color: Colors.lightGreen))),
+                              child: TextButton(
+                                onPressed: () {},
+                                child: const Text(
+                                  "회원가입",
+                                  style: TextStyle(
+                                    color: Colors.lightGreen,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 38),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextFormField(
+                            controller: idController,
+                            decoration: const InputDecoration(
+                                labelText: 'Email',
+                                labelStyle: TextStyle(color: Colors.black38),
+                                border: OutlineInputBorder(),
+                                hintText: '이메일을 입력하세요'),
+                            validator: (value) =>
+                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                            onSaved: (value) => id = value!,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 38),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: TextFormField(
-                        controller: idController,
-                        decoration: const InputDecoration(
-                            labelText: 'Email',
-                            labelStyle: TextStyle(color: Colors.black38),
-                            border: OutlineInputBorder(),
-                            hintText: '이메일을 입력하세요'),
-                        validator: (value) =>
-                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                        onSaved: (value) => id = value!,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                      child: TextFormField(
-                        controller: pwController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                            labelText: 'Password',
-                            labelStyle: TextStyle(color: Colors.black38),
-                            border: OutlineInputBorder(),
-                            hintText: '비밀번호를 입력하세요'),
-                        validator: (value) =>
-                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                        onSaved: (value) => password = value!,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                      child: TextFormField(
-                        controller: confirmPwController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                            labelText: 'Confirm Password',
-                            labelStyle: TextStyle(color: Colors.black38),
-                            border: OutlineInputBorder(),
-                            hintText: '비밀번호를 입력하세요'),
-                        validator: (value) =>
-                            value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
-                        onSaved: (value) => password = value!,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 50,
-                          width: 260,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 156, 221, 82),
-                              borderRadius: BorderRadius.circular(50)),
-                          child: TextButton(
-                            onPressed: signUserUp,
-                            child: const Center(
-                              child: Text(
-                                "시작하기",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          child: TextFormField(
+                            controller: pwController,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                                labelText: 'Password',
+                                labelStyle: TextStyle(color: Colors.black38),
+                                border: OutlineInputBorder(),
+                                hintText: '비밀번호를 입력하세요'),
+                            validator: (value) =>
+                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                            onSaved: (value) => password = value!,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                          child: TextFormField(
+                            controller: confirmPwController,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                                labelText: 'Confirm Password',
+                                labelStyle: TextStyle(color: Colors.black38),
+                                border: OutlineInputBorder(),
+                                hintText: '비밀번호를 입력하세요'),
+                            validator: (value) =>
+                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                            onSaved: (value) => password = value!,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 260,
+                              decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(255, 156, 221, 82),
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: TextButton(
+                                onPressed: signUserUp,
+                                child: const Center(
+                                  child: Text(
+                                    "시작하기",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
