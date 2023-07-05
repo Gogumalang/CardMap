@@ -700,6 +700,8 @@ PODS:
   - flutter_naver_map (1.0.0):
     - Flutter
     - NMapsMap (= 3.16.2)
+  - geolocator_apple (1.2.0):
+    - Flutter
   - GoogleUtilities/AppDelegateSwizzler (7.11.1):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -798,6 +800,7 @@ DEPENDENCIES:
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - flutter_naver_map (from `.symlinks/plugins/flutter_naver_map/ios`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
 
 SPEC REPOS:
@@ -836,6 +839,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_naver_map:
     :path: ".symlinks/plugins/flutter_naver_map/ios"
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
 
@@ -857,6 +862,7 @@ SPEC CHECKSUMS:
   FirebaseStorage: a12297f786e81e653864d87723ec30381eb90220
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_naver_map: d1ee15e7a2fe5360a19640648ceed5abf79d82aa
+  geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   GoogleUtilities: 9aa0ad5a7bc171f8bae016300bfcfa3fb8425749
   "gRPC-C++": 0968bace703459fd3e5dcb0b2bed4c573dbff046
   gRPC-Core: 17108291d84332196d3c8466b48f016fc17d816d
