@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:cardmap/screen/forgot.dart';
 import 'package:cardmap/screen/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -210,7 +211,9 @@ class LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Get.to(ForgotPasswordPage());
+                          },
                           child: const Text(
                             'Forgot Password',
                             style: TextStyle(fontSize: 14),
