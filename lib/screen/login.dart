@@ -44,7 +44,7 @@ class LoginPageState extends State<LoginPage> {
       }
     }
   }
-  
+
   void wrongEmailMessage() {
     showDialog(
       context: context,
@@ -100,6 +100,7 @@ class LoginPageState extends State<LoginPage> {
                       IconLocation(),
                     ],
                   ),
+                ],
               ),
             ),
             const SizedBox(
