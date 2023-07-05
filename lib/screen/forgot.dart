@@ -1,18 +1,16 @@
-import 'dart:ffi';
-
 import 'package:cardmap/screen/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
-  LoginPageState createState() => LoginPageState();
+  ForgotPasswordPageState createState() => ForgotPasswordPageState();
 }
 
-class LoginPageState extends State<LoginPage> {
+class ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final formKey = GlobalKey<FormState>();
   final idController = TextEditingController();
   final pwController = TextEditingController();
@@ -191,7 +189,7 @@ class LoginPageState extends State<LoginPage> {
                         onSaved: (value) => password = value!,
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 5,
                     ),
                     Row(
@@ -202,13 +200,12 @@ class LoginPageState extends State<LoginPage> {
                           onPressed: () {},
                           child: const Text(
                             'Forgot Password',
-                            style: TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 15),
                           ),
                         ),
-                        const SizedBox(width: 13),
                       ],
                     ),
-                    const SizedBox(height: 34),
+                    SizedBox(height: 34),
                     Row(
                       // 시작하기
                       mainAxisAlignment: MainAxisAlignment.center,

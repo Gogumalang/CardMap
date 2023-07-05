@@ -157,22 +157,22 @@ class SignUpPageState extends State<SignUpPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 60),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
                         controller: idController,
                         decoration: const InputDecoration(
-                            labelText: '서영',
+                            labelText: 'Email',
                             border: OutlineInputBorder(),
-                            hintText: '아이디를 입력하세요'),
+                            hintText: '이메일을 입력하세요'),
                         validator: (value) =>
                             value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
                         onSaved: (value) => id = value!,
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                       child: TextFormField(
                         controller: pwController,
                         obscureText: true,
@@ -186,12 +186,12 @@ class SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                       child: TextFormField(
                         controller: pwController,
                         obscureText: true,
                         decoration: const InputDecoration(
-                            labelText: 'PW',
+                            labelText: 'PW 확인',
                             border: OutlineInputBorder(),
                             hintText: '비밀번호를 입력하세요'),
                         validator: (value) =>

@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   final controller = NaverMapController;
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
 
   @override
   Widget build(BuildContext context) {
