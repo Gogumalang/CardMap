@@ -1,5 +1,7 @@
+import 'package:cardmap/screen/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,7 +46,7 @@ class LoginPageState extends State<LoginPage> {
       }
     }
   }
-  
+
   void wrongEmailMessage() {
     showDialog(
       context: context,
@@ -82,31 +84,16 @@ class LoginPageState extends State<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 80),
-            const Padding(
-              padding: EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: <Widget>[
-                      Center(
-                          child: Icon(
-                        Icons.location_on_rounded,
-                        size: 250,
-                        color: Colors.green,
-                      )),
-                      LocationIcon(),
-                      IconLocation(),
-                    ],
-                  ),
-              ),
-            ),
+            const SizedBox(height: 110),
+            Center(
+                child:
+                    Image.asset('assets/images/CardmapLogo.png')), // 로고 이미지 추가
             const SizedBox(
               height: 150,
             ),
             Container(
               decoration: const BoxDecoration(
+                // 동글동글한 흰색 Box
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(60),
@@ -132,6 +119,7 @@ class LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             TextButton(
+                              // 로그인 버튼
                               style: const ButtonStyle(),
                               onPressed: () {},
                               child: const Column(
@@ -153,7 +141,10 @@ class LoginPageState extends State<LoginPage> {
                           width: 42,
                         ),
                         TextButton(
-                          onPressed: () {},
+                          // 회원가입 버튼
+                          onPressed: () {
+                            Get.to(SignUpPage());
+                          },
                           child: const Text(
                             "회원가입",
                             style: TextStyle(
@@ -167,6 +158,7 @@ class LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 60),
                     Padding(
+                      // ID입력란
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
                         controller: idController,
@@ -180,6 +172,7 @@ class LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     Padding(
+                      // PW 입력란
                       padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                       child: TextFormField(
                         controller: pwController,
@@ -194,6 +187,7 @@ class LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     Row(
+                      // 시작하기
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
@@ -220,6 +214,7 @@ class LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 4),
                     Row(
+                      // Forgot Password 입력란
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
@@ -238,43 +233,6 @@ class LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class IconLocation extends StatelessWidget {
-  const IconLocation({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-        offset: const Offset(0, 70),
-        child: const Center(
-          child: Icon(
-            Icons.sim_card,
-            size: 60,
-          ),
-        ));
-  }
-}
-
-class LocationIcon extends StatelessWidget {
-  const LocationIcon({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, 20),
-      child: const Center(
-          child: Icon(
-        Icons.location_on_rounded,
-        size: 200,
-        color: Colors.white,
-      )),
     );
   }
 }
