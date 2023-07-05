@@ -5,8 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 
+import 'package:geolocator/geolocator.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // ignore: unused_local_variable
+  LocationPermission permission =
+      await Geolocator.requestPermission(); //위치정보 허가
   await NaverMapSdk.instance.initialize(
       clientId: '73oah8omwy',
       onAuthFailed: (ex) {
@@ -17,6 +22,7 @@ Future<void> main() async {
   );
   runApp(const MyApp());
   //parkseyoung babo
+  //ahnseoyoung 1004
   //yoonyohan cheunjae
 }
 

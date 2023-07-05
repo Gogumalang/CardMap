@@ -1,40 +1,65 @@
 import 'package:firebase_auth/firebase_auth.dart';
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:geolocator/geolocator.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  final cameraPosition = const NCameraPosition(
-    target: NLatLng(37.5666102, 126.9783881),
-    zoom: 15,
-    bearing: 45,
-    tilt: 30,
-  );
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Position position;
+  late NCameraPosition cameraPosition;
+  bool isReady = false;
+
+  @override
+  void initState() {
+    // 현재 위치를 받아오기
+    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((value) {
+      position = value;
+      setState(() {
+        cameraPosition = NCameraPosition(
+            target: NLatLng(position.latitude, position.longitude), zoom: 15);
+        isReady = true;
+      });
+    });
+    super.initState();
+  }
+
   final controller = NaverMapController;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          NaverMap(
-            options: NaverMapViewOptions(
-              // naver map 옵션을 세팅하는 위젯
-              initialCameraPosition: cameraPosition,
-              locationButtonEnable: true, // 현 위치를 나타내는 버튼
-              mapType: NMapType.navi,
-              nightModeEnable: true,
-              extent: const NLatLngBounds(
-                southWest: NLatLng(31.43, 122.37),
-                northEast: NLatLng(44.35, 132.0),
-              ),
-            ),
-            onMapReady: (controller) {
-              print("네이버 맵 로딩됨!");
-              // final infoWindow = NInfoWindow.onMap(
-              //     id: "test", position: target, text: "인포윈도우 텍스트");
-              // controller.addOverlay(infoWindow);
-            },
-          ),
+          isReady
+              ? NaverMap(
+                  options: NaverMapViewOptions(
+                    // naver map 옵션을 세팅하는 위젯
+                    initialCameraPosition: cameraPosition,
+                    locationButtonEnable: true, // 현 위치를 나타내는 버튼
+                    mapType: NMapType.basic,
+                    nightModeEnable: true,
+                    // extent: const NLatLngBounds(
+                    //   southWest: NLatLng(31.43, 122.37),
+                    //   northEast: NLatLng(44.35, 132.0),
+                    // ),
+                  ),
+                  onMapReady: (controller) {
+                    print("네이버 맵 로딩됨!");
+                    // final infoWindow = NInfoWindow.onMap(
+                    //     id: "test", position: target, text: "인포윈도우 텍스트");
+                    // controller.addOverlay(infoWindow);
+                  },
+                )
+              : Container(),
           Column(
             children: [
               const SizedBox(
@@ -46,6 +71,7 @@ class HomePage extends StatelessWidget {
                     width: 20,
                   ),
                   Container(
+                    // 검색창 버튼
                     width: 310,
                     height: 50,
                     decoration: const BoxDecoration(
@@ -61,6 +87,7 @@ class HomePage extends StatelessWidget {
                     width: 30,
                   ),
                   Container(
+                    // 더보기란
                     width: 50,
                     height: 50,
                     decoration: const BoxDecoration(
@@ -81,6 +108,7 @@ class HomePage extends StatelessWidget {
                 height: 15,
               ),
               SingleChildScrollView(
+                //카드 스크롤
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
