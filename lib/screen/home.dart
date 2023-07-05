@@ -1,6 +1,5 @@
+import 'package:cardmap/screen/more.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -37,6 +36,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key, //drawer
+      endDrawer: const MorePage(), //drawer
       body: Stack(
         children: [
           isReady
@@ -91,15 +92,20 @@ class _HomePageState extends State<HomePage> {
                     width: 50,
                     height: 50,
                     decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
                     child: IconButton(
                       iconSize: 25,
                       icon: const Icon(
                         Icons.menu_rounded,
                         color: Colors.amber,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        _key.currentState!.openEndDrawer(); //drawer open
+                      },
                     ),
                   ),
                 ],
@@ -150,7 +156,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
 // class NaverService {
 //   late NCameraPosition cameraPosition;
 //   Future currentPosition() async {

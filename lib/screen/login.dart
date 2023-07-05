@@ -88,7 +88,6 @@ class LoginPageState extends State<LoginPage> {
             Center(
                 child:
                     Image.asset('assets/images/CardmapLogo.png')), // 로고 이미지 추가
-           
             const SizedBox(
               height: 150,
             ),
