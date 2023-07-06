@@ -57,17 +57,20 @@ class LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(title: Text(message), actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
+        return AlertDialog(
+          title: Text(message),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
-            child: const Text('확인'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ]);
+          ],
+        );
       },
     );
   }

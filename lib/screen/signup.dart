@@ -1,6 +1,5 @@
 // import 'dart:html';
 
-import 'package:cardmap/screen/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -129,8 +128,7 @@ class SignUpPageState extends State<SignUpPage> {
                             TextButton(
                               style: const ButtonStyle(),
                               onPressed: () {
-                                Get.to(() => const LoginPage(),
-                                    transition: Transition.noTransition);
+                                Get.back();
                               },
                               child: const Column(
                                 children: [
