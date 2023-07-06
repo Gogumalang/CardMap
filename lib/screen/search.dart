@@ -23,6 +23,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           const SizedBox(
@@ -30,8 +31,19 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            color: Colors.black,
+            color: Colors.white,
             child: Row(children: [
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_sharp),
+                  onPressed: () {
+                    _filter.clear();
+                    _searchText = "";
+                    focusNode.unfocus();
+                  },
+                ),
+              ),
               Expanded(
                 flex: 6,
                 child: TextField(
@@ -43,7 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   controller: _filter,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.white12,
+                    fillColor: Colors.black12,
                     prefixIcon: const Icon(
                       Icons.search,
                       color: Colors.white60,
@@ -76,7 +88,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
+              //   focusNode.hasFocus ? Expanded(child: Button)
             ]),
           ),
         ],
