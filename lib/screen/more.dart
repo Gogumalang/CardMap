@@ -38,8 +38,9 @@ class MorePage extends StatelessWidget {
               ),
               const CircleAvatar(
                 radius: 50,
-                backgroundImage: NetworkImage(
-                    "https://img.freepik.com/premium-vector/cute-hamster-sitting-icon-illustration-hamster-mascot-cartoon-character-animal-icon-concept-white-isolated_138676-906.jpg"),
+                backgroundImage: AssetImage('assets/images/hamzzi.jpeg'),
+                // backgroundImage: NetworkImage(
+                //     "https://img.freepik.com/premium-vector/cute-hamster-sitting-icon-illustration-hamster-mascot-cartoon-character-animal-icon-concept-white-isolated_138676-906.jpg"),
                 child: ClipOval(),
               ),
               const SizedBox(
