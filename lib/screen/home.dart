@@ -82,7 +82,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        Get.to(const SearchScreen());
+                        Get.to(const SearchScreen(),
+                            transition: Transition.noTransition);
                       },
                       child: const Text(
                         "search",

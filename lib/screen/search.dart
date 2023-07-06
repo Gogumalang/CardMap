@@ -1,4 +1,6 @@
+import 'package:cardmap/screen/home.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -41,6 +43,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     _filter.clear();
                     _searchText = "";
                     focusNode.unfocus();
+                    Get.off(const HomePage(),
+                        transition: Transition.noTransition);
                   },
                 ),
               ),

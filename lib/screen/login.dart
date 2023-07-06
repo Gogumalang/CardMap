@@ -164,7 +164,7 @@ class LoginPageState extends State<LoginPage> {
                             TextButton(
                               // 회원가입 버튼
                               onPressed: () {
-                                Get.to(() => const SignUpPage(),
+                                Get.to(const SignUpPage(),
                                     transition: Transition.noTransition);
                               },
                               child: const Text(
