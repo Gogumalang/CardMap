@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cardmap/screen/forgot.dart';
 import 'package:cardmap/screen/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -87,12 +89,7 @@ class LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-          const NaverMap(
-            options: NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(
-                  target: NLatLng(36.1030521, 129.391357), zoom: 14.5),
-            ),
-          ),
+          Image.asset('assets/images/background.jpeg'),
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,10 +219,7 @@ class LoginPageState extends State<LoginPage> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                Get.to(
-                                  const ForgotPasswordPage(),
-                                  transition: Transition.noTransition,
-                                );
+                                Get.to(const ForgotPasswordPage());
                               },
                               child: const Text(
                                 'Forgot Password',
