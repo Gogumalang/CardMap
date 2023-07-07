@@ -134,17 +134,13 @@ class LoginPageState extends State<LoginPage> {
                                 // 로그인 버튼
                                 style: const ButtonStyle(),
                                 onPressed: () {},
-                                child: const Column(
-                                  children: [
-                                    Text(
-                                      "로그인",
-                                      style: TextStyle(
-                                        color: Colors.lightGreen,
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                                child: const Text(
+                                  "로그인",
+                                  style: TextStyle(
+                                    color: Colors.lightGreen,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),

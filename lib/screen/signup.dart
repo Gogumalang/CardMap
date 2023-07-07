@@ -46,7 +46,27 @@ class SignUpPageState extends State<SignUpPage> {
             )
             .then((value) => {
                   Navigator.pop(context),
-                  Get.back(),
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("회원 가입이 완료 되었습니다."),
+                        actions: <Widget>[
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              textStyle: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            child: const Text('확인'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              Get.to(const CardSelection(),
+                                  transition: Transition.noTransition);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 });
       } else {
         Navigator.pop(context);
@@ -73,24 +93,24 @@ class SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  void errorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(title: Text(message), actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
-            ),
-            child: const Text('확인'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ]);
-      },
-    );
-  }
+  // void errorMessage(String message) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(title: Text(message), actions: <Widget>[
+  //         TextButton(
+  //           style: TextButton.styleFrom(
+  //             textStyle: Theme.of(context).textTheme.labelLarge,
+  //           ),
+  //           child: const Text('확인'),
+  //           onPressed: () {
+  //             Navigator.of(context).pop();
+  //           },
+  //         ),
+  //       ]);
+  //     },
+  //   );
+  // }
 
   @override
   void dispose() {
@@ -140,17 +160,13 @@ class SignUpPageState extends State<SignUpPage> {
                               onPressed: () {
                                 Get.back();
                               },
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    "로그인",
-                                    style: TextStyle(
-                                      color: Colors.lightGreen,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                              child: const Text(
+                                "로그인",
+                                style: TextStyle(
+                                  color: Colors.lightGreen,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                             const SizedBox(
@@ -269,9 +285,7 @@ class SignUpPageState extends State<SignUpPage> {
                                   borderRadius: BorderRadius.circular(50)),
                               child: TextButton(
                                 onPressed: () {
-                                  signUserUp;
-                                  Get.to(const CardSelection(),
-                                      transition: Transition.noTransition);
+                                  signUserUp();
                                 },
                                 child: const Center(
                                   child: Text(

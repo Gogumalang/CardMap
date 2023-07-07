@@ -1,4 +1,3 @@
-import 'package:cardmap/screen/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,7 +40,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: const Text("이메일이 전송 되었습니다!!"),
+                    title: const Text("이메일이 전송 되었습니다."),
                     actions: <Widget>[
                       TextButton(
                         style: TextButton.styleFrom(
@@ -50,8 +49,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         child: const Text('확인'),
                         onPressed: () {
                           Navigator.of(context).pop();
-                          Get.to(() => const LoginPage(),
-                              transition: Transition.noTransition);
+                          Get.back();
                         },
                       ),
                     ],
