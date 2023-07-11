@@ -1,6 +1,7 @@
 import 'package:cardmap/screen/cardselection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MorePage extends StatelessWidget {
   MorePage({
@@ -110,7 +111,9 @@ class MorePage extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      const CardSelection();
+                      Get.to(
+                        const CardSelection(),
+                      );
                     },
                     child: const Text(
                       "+ 카드 추가 등록",
