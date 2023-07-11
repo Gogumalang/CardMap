@@ -1,4 +1,5 @@
 import 'package:cardmap/screen/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +14,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _filter = TextEditingController();
   FocusNode focusNode = FocusNode();
   late String _searchText;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   _SearchScreenState() {
     _filter.addListener(() {
@@ -21,6 +23,65 @@ class _SearchScreenState extends State<SearchScreen> {
       });
     });
   }
+
+  Widget _buildBody(BuildContext context) {
+    return FutureBuilder<QuerySnapshot>(
+        future: firestore.collection('Card').get(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data! == null) {
+              return const Center(
+                child: Text('data empty'),
+              );
+            } else {
+              var searchResults = [];
+
+              for (var doc in snapshot.data!.docs) {
+                if (doc.data().toString().contains(_searchText)) {
+                  searchResults.add(doc.data());
+                }
+              }
+
+              return ListView.builder(
+                itemCount: searchResults.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    textColor: Colors.amber,
+                    title: Text(searchResults[index]['name']),
+                    subtitle: Text(searchResults[index]['company']),
+                  );
+                },
+              );
+            }
+          } else {
+            return const LinearProgressIndicator();
+          }
+        });
+  }
+
+  // Widget _buildList(
+  //     BuildContext context, List<QueryDocumentSnapshot<Object?>> documents) {
+  //   var searchResults = [];
+
+  //   for (var doc in documents) {
+  //     if (doc.data().toString().contains(_searchText)) {
+  //       searchResults.add(doc.data());
+  //     }
+  //   }
+
+  //   return ListView.builder(
+  //     itemCount: searchResults.length,
+  //     itemBuilder: (BuildContext context, int index) {
+  //       return ListTile(
+  //         textColor: Colors.amber,
+  //         title: Text(searchResults[index]['name']),
+  //         subtitle: Text(searchResults[index]['company']),
+  //       );
+  //     },
+  //   );
+  // }
+
+  //Widget _buildListItem(BuildContext context, DocumentSnapshot data) {}
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
             height: 70,
           ),
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(0, 5, 10, 2),
             color: Colors.white,
             child: Row(children: [
               Expanded(
@@ -96,6 +157,7 @@ class _SearchScreenState extends State<SearchScreen> {
               //   focusNode.hasFocus ? Expanded(child: Button)
             ]),
           ),
+          _buildBody(context),
         ],
       ),
     );
