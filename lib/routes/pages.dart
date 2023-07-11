@@ -1,3 +1,4 @@
+import 'package:cardmap/screen/cardselection.dart';
 import 'package:cardmap/screen/signup.dart';
 import 'package:get/route_manager.dart';
 
@@ -7,7 +8,11 @@ class AppPages {
   static final routes = [
     GetPage(
       name: Routes.signup,
-      page: () => SignUpPage(),
+      page: () => const SignUpPage(),
+    ),
+    GetPage(
+      name: Routes.cardselection,
+      page: () => const CardSelection(),
     ),
   ];
 }

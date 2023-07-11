@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:cardmap/screen/forgot.dart';
 import 'package:cardmap/screen/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,6 +18,7 @@ class LoginPageState extends State<LoginPage> {
 
   late String id;
   late String password;
+  String errorMsg = '';
 
   void logUserIn() async {
     final form = formKey.currentState;
@@ -47,35 +45,40 @@ class LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       //print(e);
-      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
-        errorMessage('존재하지 않는 이메일 입니다.');
-      } else if (e.code == 'wrong-password') {
-        errorMessage('비밀번호가 틀렸습니다.');
+      if ((e.code == 'user-not-found' && idController.text.isNotEmpty) ||
+          (e.code == 'invalid-email' && idController.text.isNotEmpty)) {
+        setState(() {});
+        errorMsg = '존재하지 않는 이메일 입니다.';
+        //errorMessage('존재하지 않는 이메일 입니다.');
+      } else if (e.code == 'wrong-password' && pwController.text.isNotEmpty) {
+        setState(() {});
+        //errorMessage('비밀번호가 틀렸습니다.');
+        errorMsg = '비밀번호가 틀렸습니다.';
       }
     }
   }
 
-  void errorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(message),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('확인'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void errorMessage(String message) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text(message),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             style: TextButton.styleFrom(
+  //               textStyle: Theme.of(context).textTheme.labelLarge,
+  //             ),
+  //             child: const Text('확인'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   void dispose() {
@@ -102,7 +105,7 @@ class LoginPageState extends State<LoginPage> {
                   height: 50,
                 ),
                 Container(
-                  height: 600,
+                  height: 551,
                   decoration: const BoxDecoration(
                     // 동글동글한 흰색 Box
                     color: Colors.white,
@@ -122,41 +125,24 @@ class LoginPageState extends State<LoginPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Stack(
-                              children: [
-                                Container(
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom:
-                                          BorderSide(color: Colors.lightGreen),
-                                    ),
+                            Container(
+                              decoration: const BoxDecoration(
+                                  border: BorderDirectional(
+                                      bottom: BorderSide(
+                                          width: 2, color: Colors.lightGreen))),
+                              child: TextButton(
+                                // 로그인 버튼
+                                style: const ButtonStyle(),
+                                onPressed: () {},
+                                child: const Text(
+                                  "로그인",
+                                  style: TextStyle(
+                                    color: Colors.lightGreen,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                Container(
-                                  decoration: const BoxDecoration(
-                                      border: BorderDirectional(
-                                          bottom: BorderSide(
-                                              width: 2,
-                                              color: Colors.lightGreen))),
-                                  child: TextButton(
-                                    // 로그인 버튼
-                                    style: const ButtonStyle(),
-                                    onPressed: () {},
-                                    child: const Column(
-                                      children: [
-                                        Text(
-                                          "로그인",
-                                          style: TextStyle(
-                                            color: Colors.lightGreen,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                             const SizedBox(
                               width: 42,
@@ -183,35 +169,55 @@ class LoginPageState extends State<LoginPage> {
                           // ID입력란
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             controller: idController,
                             decoration: const InputDecoration(
-                                labelText: 'ID',
+                                labelText: 'Email',
                                 labelStyle: TextStyle(color: Colors.black38),
                                 border: OutlineInputBorder(),
+                                prefixIcon: Icon(
+                                  Icons.email_outlined,
+                                  color: Colors.black38,
+                                ),
                                 hintText: '아이디를 입력하세요'),
-                            validator: (value) =>
-                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '필수로 입력해야하는 정보입니다.';
+                              }
+                              return null;
+                            },
                             onSaved: (value) => id = value!,
                           ),
                         ),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         Padding(
                           // PW 입력란
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             controller: pwController,
                             obscureText: true,
                             decoration: const InputDecoration(
                                 labelText: 'Password',
                                 labelStyle: TextStyle(color: Colors.black38),
                                 border: OutlineInputBorder(),
+                                prefixIcon: Icon(
+                                  Icons.lock_outline,
+                                  color: Colors.black38,
+                                ),
                                 hintText: '비밀번호를 입력하세요'),
-                            validator: (value) =>
-                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '필수로 입력해야하는 정보입니다.';
+                              }
+                              return null;
+                            },
                             onSaved: (value) => password = value!,
                           ),
-                        ),
-                        const SizedBox(
-                          height: 5,
                         ),
                         Row(
                           // Forgot Password 입력란
@@ -219,17 +225,28 @@ class LoginPageState extends State<LoginPage> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                Get.to(const ForgotPasswordPage());
+                                Get.to(const ForgotPasswordPage(),
+                                    transition: Transition.noTransition);
                               },
                               child: const Text(
-                                'Forgot Password',
-                                style: TextStyle(fontSize: 14),
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.lightGreen,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 13),
                           ],
                         ),
-                        const SizedBox(height: 53),
+                        const SizedBox(height: 14),
+                        Center(
+                          child: Text(
+                            errorMsg,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
                         Row(
                           // 시작하기
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -1,7 +1,5 @@
-import 'package:cardmap/screen/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -15,6 +13,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final formKey = GlobalKey<FormState>();
   final idController = TextEditingController();
   late String id;
+  String errorMsg = '';
 
   passwordReset() async {
     final form = formKey.currentState;
@@ -41,7 +40,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: const Text("이메일이 전송 되었습니다!!"),
+                    title: const Text("이메일이 전송 되었습니다."),
                     actions: <Widget>[
                       TextButton(
                         style: TextButton.styleFrom(
@@ -50,8 +49,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         child: const Text('확인'),
                         onPressed: () {
                           Navigator.of(context).pop();
-                          Get.to(() => const LoginPage(),
-                              transition: Transition.noTransition);
+                          Get.back();
                         },
                       ),
                     ],
@@ -62,40 +60,33 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
           );
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
-        showSnackBar(context, const Text('존재하지 않는 이메일 입니다.'));
+      if ((e.code == 'user-not-found' && idController.text.isNotEmpty) ||
+          (e.code == 'invalid-email' && idController.text.isNotEmpty)) {
+        setState(() {});
+        errorMsg = '존재하지 않는 이메일 입니다.';
         //errorMessage('존재하지 않는 이메일 입니다.');
       }
     }
   }
 
-  void showSnackBar(BuildContext context, Text text) {
-    final snackBar = SnackBar(
-      content: text,
-      backgroundColor: const Color.fromARGB(255, 112, 48, 48),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  void errorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(title: Text(message), actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
-            ),
-            child: const Text('확인'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ]);
-      },
-    );
-  }
+  // void errorMessage(String message) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(title: Text(message), actions: <Widget>[
+  //         TextButton(
+  //           style: TextButton.styleFrom(
+  //             textStyle: Theme.of(context).textTheme.labelLarge,
+  //           ),
+  //           child: const Text('확인'),
+  //           onPressed: () {
+  //             Navigator.of(context).pop();
+  //           },
+  //         ),
+  //       ]);
+  //     },
+  //   );
+  // }
 
   @override
   void dispose() {
@@ -106,15 +97,9 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightGreen,
       body: Stack(
         children: [
-          const NaverMap(
-            options: NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(
-                  target: NLatLng(36.1030521, 129.391357), zoom: 14.5),
-            ),
-          ),
+          Image.asset('assets/images/background.jpeg'),
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +112,7 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   height: 50,
                 ),
                 Container(
-                  height: 600,
+                  height: 551,
                   decoration: const BoxDecoration(
                     // 동글동글한 흰색 Box
                     color: Colors.white,
@@ -183,17 +168,34 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           // ID입력란
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             controller: idController,
                             decoration: const InputDecoration(
                                 labelText: 'Email',
                                 border: OutlineInputBorder(),
+                                prefixIcon: Icon(
+                                  Icons.email_outlined,
+                                  color: Colors.black38,
+                                ),
                                 hintText: '이메일을 입력하세요'),
-                            validator: (value) =>
-                                value!.isEmpty ? '필수로 입력해야하는 정보입니다.' : null,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '필수로 입력해야하는 정보입니다.';
+                              }
+                              return null;
+                            },
                             onSaved: (value) => id = value!,
                           ),
                         ),
-                        const SizedBox(height: 34),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: Text(
+                            errorMsg,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
                         Row(
                           // 시작하기
                           mainAxisAlignment: MainAxisAlignment.center,
