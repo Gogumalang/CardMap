@@ -10,8 +10,11 @@ class CardSelection extends StatefulWidget {
 
 class _CardSelectionState extends State<CardSelection> {
   String pClicked = '';
-  String cClicked = '';
+  String cClicked = '전체';
   String cardClicked = '';
+
+  List clickedCardList = [];
+  List clickedCardListFinal = [];
 
   final provinceList = [
     '서울',
@@ -33,7 +36,7 @@ class _CardSelectionState extends State<CardSelection> {
     '세종',
   ];
 
-  var cityList = [
+  final cityList = [
     [
       '전체',
       '경기',
@@ -71,91 +74,207 @@ class _CardSelectionState extends State<CardSelection> {
     ['전체'],
   ];
 
-  var cardList = [
+  final cardList = [
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
     ],
     [
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
-      ['아동복지 카드', '문화누리 카드', '지역사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+    ],
+  ];
+
+  final cardListIndex = [
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
     ],
   ];
 
@@ -174,7 +293,7 @@ class _CardSelectionState extends State<CardSelection> {
         child: TextButton(
           onPressed: () {
             pClicked = location;
-            cClicked = '';
+            cClicked = '전체';
             setState(() {});
           },
           child: Text(
@@ -223,6 +342,7 @@ class _CardSelectionState extends State<CardSelection> {
         child: TextButton(
           onPressed: () {
             cClicked = location;
+            cardClicked = '';
             setState(() {});
           },
           child: Text(
@@ -250,7 +370,7 @@ class _CardSelectionState extends State<CardSelection> {
           child: Text(
             location,
             style: const TextStyle(
-              color: Colors.lightGreen,
+              color: Colors.green,
             ),
           ),
         ),
@@ -267,6 +387,24 @@ class _CardSelectionState extends State<CardSelection> {
         child: TextButton(
           onPressed: () {
             cardClicked = location;
+            if (cClicked == '전체') {
+              clickedCardList.add("($pClicked) $location");
+            } else {
+              clickedCardList.add("($cClicked) $location");
+            }
+            for (int i = 0; i < provinceList.length; i++) {
+              if (provinceList[i] == pClicked) {
+                for (int j = 0; j < cityList[i].length; j++) {
+                  if (cityList[i][j] == cClicked) {
+                    for (int k = 0; k < cardList[i][j].length; k++) {
+                      if (cardList[i][j][k] == location) {
+                        cardListIndex[i][j][k] = 1;
+                      }
+                    }
+                  }
+                }
+              }
+            }
             setState(() {});
           },
           child: Padding(
@@ -299,7 +437,27 @@ class _CardSelectionState extends State<CardSelection> {
           color: Color.fromARGB(255, 220, 250, 220),
         ),
         child: TextButton(
-          onPressed: () {},
+          onPressed: () {
+            if (cClicked == '전체') {
+              clickedCardList.remove("($pClicked) $location");
+            } else {
+              clickedCardList.remove("($cClicked) $location");
+            }
+            for (int i = 0; i < provinceList.length; i++) {
+              if (provinceList[i] == pClicked) {
+                for (int j = 0; j < cityList[i].length; j++) {
+                  if (cityList[i][j] == cClicked) {
+                    for (int k = 0; k < cardList[i][j].length; k++) {
+                      if (cardList[i][j][k] == location) {
+                        cardListIndex[i][j][k] = 0;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            setState(() {});
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -308,13 +466,78 @@ class _CardSelectionState extends State<CardSelection> {
                 Text(
                   location,
                   style: const TextStyle(
-                    color: Colors.lightGreen,
+                    color: Colors.green,
                   ),
                 ),
                 const Icon(
                   Icons.check,
-                  color: Colors.lightGreen,
+                  color: Colors.green,
                 ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    container4(String location) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 1),
+        child: Container(
+          height: 20,
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 220, 250, 220),
+            border: BorderDirectional(
+              top: BorderSide(width: 1, color: Colors.lightGreen),
+              start: BorderSide(width: 1, color: Colors.lightGreen),
+              end: BorderSide(width: 1, color: Colors.lightGreen),
+              bottom: BorderSide(width: 1, color: Colors.lightGreen),
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  location,
+                  style: const TextStyle(
+                    color: Colors.green,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    clickedCardList.remove(location);
+                    for (int i = 0; i < provinceList.length; i++) {
+                      if (provinceList[i] == location.substring(1, 3)) {
+                        for (int k = 0; k < cardList[i][0].length; k++) {
+                          if (cardList[i][0][k] == location.substring(5)) {
+                            cardListIndex[i][0][k] = 0;
+                          }
+                        }
+                      } else {
+                        for (int j = 0; j < cityList[i].length; j++) {
+                          if (cityList[i][j] == location.substring(1, 3)) {
+                            for (int k = 0; k < cardList[i][j].length; k++) {
+                              if (cardList[i][j][k] == location.substring(5)) {
+                                cardListIndex[i][j][k] = 0;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    setState(() {});
+                  },
+                  constraints: BoxConstraints.tight(const Size(15, 24)),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.green,
+                  ),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
+                  iconSize: 18,
+                )
               ],
             ),
           ),
@@ -407,9 +630,9 @@ class _CardSelectionState extends State<CardSelection> {
                 style: TextStyle(color: Colors.black38),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 60),
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 59),
                 child: Text(
-                  '동/읍/면',
+                  '카드종류',
                   style: TextStyle(color: Colors.black87),
                 ),
               ),
@@ -423,7 +646,7 @@ class _CardSelectionState extends State<CardSelection> {
           Row(
             children: [
               SizedBox(
-                  height: 530,
+                  height: 500,
                   width: 91,
                   child: ListView(
                     children: [
@@ -435,7 +658,7 @@ class _CardSelectionState extends State<CardSelection> {
                     ],
                   )),
               SizedBox(
-                height: 530,
+                height: 500,
                 width: 169,
                 child: ListView(
                   children: [
@@ -450,7 +673,7 @@ class _CardSelectionState extends State<CardSelection> {
                 ),
               ),
               SizedBox(
-                height: 530,
+                height: 500,
                 width: 170,
                 child: ListView(
                   children: [
@@ -459,7 +682,7 @@ class _CardSelectionState extends State<CardSelection> {
                         for (int j = 0; j < cityList[i].length; j++)
                           if (cityList[i][j] == cClicked)
                             for (int k = 0; k < cardList[i][j].length; k++)
-                              if (cardList[i][j][k] == cardClicked)
+                              if (cardListIndex[i][j][k] == 1)
                                 container30(cardList[i][j][k])
                               else
                                 container3(cardList[i][j][k]),
@@ -473,55 +696,65 @@ class _CardSelectionState extends State<CardSelection> {
             thickness: 1,
             color: Colors.black,
           ),
-          const SizedBox(
-            height: 20,
-          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                TextButton(
-                  style: const ButtonStyle(
-                    backgroundColor:
-                        MaterialStatePropertyAll(Colors.lightGreen),
-                    padding: MaterialStatePropertyAll(
-                        EdgeInsets.symmetric(horizontal: 115, vertical: 16)),
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    '등록하기',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 5,
-                ),
-                TextButton.icon(
-                  style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Colors.black12),
-                    padding: MaterialStatePropertyAll(
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 14)),
-                  ),
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.refresh,
-                    color: Colors.black,
-                  ),
-                  label: const Text(
-                    '초기화',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: SizedBox(
+              height: 35,
+              width: 420,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  for (int i = 0; i < clickedCardList.length; i++)
+                    container4(clickedCardList[i])
+                ],
+              ),
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(Colors.lightGreen),
+                  padding: MaterialStatePropertyAll(
+                      EdgeInsets.symmetric(horizontal: 115, vertical: 16)),
+                ),
+                onPressed: () {
+                  clickedCardListFinal = clickedCardList;
+                },
+                child: const Text(
+                  '등록하기',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              TextButton.icon(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(Colors.black12),
+                  padding: MaterialStatePropertyAll(
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 14)),
+                ),
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.refresh,
+                  color: Colors.black,
+                ),
+                label: const Text(
+                  '초기화',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -272,7 +272,7 @@ class SignUpPageState extends State<SignUpPage> {
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
