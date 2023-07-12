@@ -3,10 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class MorePage extends StatelessWidget {
-  MorePage({
+class MorePage extends StatefulWidget {
+  const MorePage({
     super.key,
   });
+
+  @override
+  State<MorePage> createState() => _MorePageState();
+}
+
+class _MorePageState extends State<MorePage> {
+  CardSelection card = const CardSelection();
 
   final user = FirebaseAuth.instance.currentUser!;
 
@@ -73,36 +80,18 @@ class MorePage extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              const Padding(
-                padding: EdgeInsets.all(5.0),
-                child: Text(
-                  "문화 누리 카드",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                  ),
+              SizedBox(
+                height: 50,
+                width: 70,
+                child: ListView(
+                  children: const [
+                    // for(int i = 0; i < card.clickedCardListFinal.length; i++);
+                  ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.all(5.0),
-                child: Text(
-                  "아동 복지 카드",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(5.0),
-                child: Text(
-                  "지역 사랑 카드",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+              cardList("문화 누리 카드"),
+              cardList("아동 복지 카드"),
+              cardList("지역 사랑 카드"),
               const SizedBox(
                 height: 20,
               ),
@@ -142,6 +131,19 @@ class MorePage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Padding cardList(String cardName) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Text(
+        cardName,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
