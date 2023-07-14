@@ -1,13 +1,15 @@
+import 'dart:convert';
+
 import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -16,6 +18,42 @@ class _HomePageState extends State<HomePage> {
   late Position position;
   late NCameraPosition cameraPosition;
   bool isReady = false;
+  Map<String, String> headerss = {
+    "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
+    "X-NCP-APIGW-API-KEY":
+        "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // 개인 시크릿 키
+  };
+
+  Future<List<String>> fetchAlbum(String lat, String lon) async {
+    // Position position = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+    // String lat = "37.30868980127576";
+    // //position.latitude.toString();
+    // String lon = "126.83061361312866";
+    // //position.longitude.toString();
+    print(lat);
+    print(lon);
+
+    var response = await http.get(
+        Uri.parse(
+            'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
+        headers: headerss);
+    print(response.body);
+
+    String jsonData = response.body;
+
+    print(jsonData);
+    var myjsonGu =
+        jsonDecode(jsonData)["results"][0]['region']['area2']['name'];
+    var myjsonSi =
+        jsonDecode(jsonData)["results"][0]['region']['area1']['name'];
+
+    List<String> gusi = [myjsonSi, myjsonGu];
+    print(gusi);
+
+    return gusi;
+  }
+
   @override
   void initState() {
     // 현재 위치를 받아오기
@@ -38,7 +76,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _key, //drawer
-      endDrawer: MorePage(), //drawer
+      endDrawer: const MorePage(), //drawer
       body: Stack(
         children: [
           isReady
@@ -60,6 +98,9 @@ class _HomePageState extends State<HomePage> {
                     //     id: "test", position: target, text: "인포윈도우 텍스트");
                     // controller.addOverlay(infoWindow);
                   },
+                  onSymbolTapped: (symbolInfo) => fetchAlbum(
+                      symbolInfo.position.latitude.toString(),
+                      symbolInfo.position.longitude.toString()),
                 )
               : Container(),
           Column(
