@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,44 +17,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Position position;
-  late NCameraPosition cameraPosition;
+  late NCameraPosition initCameraPosition;
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
     "X-NCP-APIGW-API-KEY":
         "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // 개인 시크릿 키
   };
-
-  Future<List<String>> fetchAlbum(String lat, String lon) async {
-    // Position position = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
-    // String lat = "37.30868980127576";
-    // //position.latitude.toString();
-    // String lon = "126.83061361312866";
-    // //position.longitude.toString();
-    print(lat);
-    print(lon);
-
-    var response = await http.get(
-        Uri.parse(
-            'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
-        headers: headerss);
-    print(response.body);
-
-    String jsonData = response.body;
-
-    print(jsonData);
-    var myjsonGu =
-        jsonDecode(jsonData)["results"][0]['region']['area2']['name'];
-    var myjsonSi =
-        jsonDecode(jsonData)["results"][0]['region']['area1']['name'];
-
-    List<String> gusi = [myjsonSi, myjsonGu];
-    print(gusi);
-
-    return gusi;
-  }
-
   @override
   void initState() {
     // 현재 위치를 받아오기
@@ -61,7 +32,7 @@ class _HomePageState extends State<HomePage> {
         .then((value) {
       position = value;
       setState(() {
-        cameraPosition = NCameraPosition(
+        initCameraPosition = NCameraPosition(
             target: NLatLng(position.latitude, position.longitude), zoom: 15);
         isReady = true;
       });
@@ -69,8 +40,67 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  final controller = NaverMapController;
-  final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
+  late NaverMapController mapController;
+
+  Future<List<String>> fetchAlbum(String lat, String lon) async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    // String lat = "37.30868980127576";
+    position.latitude.toString();
+    // String lon = "126.83061361312866";
+    position.longitude.toString();
+    print(lat);
+    print(lon);
+
+    DatabaseReference ref = FirebaseDatabase.instance.ref("서울사랑상품권");
+
+    Query a = ref
+        .orderByChild("서울특별시 노원구")
+        .startAt("서울특별시 노원구")
+        .endAt("서울특별시 노원구" "\uf8ff");
+    print(a);
+    var response = await http.get(
+        Uri.parse(
+            'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
+        headers: headerss);
+    //print(response.body);
+
+    String jsonData = response.body;
+
+    //print(jsonData);
+    var myjsonSi =
+        jsonDecode(jsonData)["results"][0]['region']['area1']['name'];
+    var myjsonGu =
+        jsonDecode(jsonData)["results"][0]['region']['area2']['name'];
+    var myjsonDong =
+        jsonDecode(jsonData)["results"][0]['region']['area3']['name'];
+    var myjsonNumber1 = jsonDecode(jsonData)["results"][0]['land']['number1'];
+    var myjsonNumber2 = jsonDecode(jsonData)["results"][0]['land']['number2'];
+
+    List<String> adress = [
+      myjsonSi,
+      myjsonGu,
+      myjsonDong,
+      myjsonNumber1,
+      myjsonNumber2
+    ];
+    print(adress);
+
+    return adress;
+  }
+
+  Future<List<String>> cameraLocation() async {
+    late List<String> adress, find;
+    NCameraPosition cameraPosition = await mapController.getCameraPosition();
+    final lat = cameraPosition.target.latitude.toString();
+    final lon = cameraPosition.target.longitude.toString();
+    final zoom = cameraPosition.zoom;
+
+    adress = await fetchAlbum(lat, lon);
+
+    print(adress);
+    return adress;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +113,7 @@ class _HomePageState extends State<HomePage> {
               ? NaverMap(
                   options: NaverMapViewOptions(
                     // naver map 옵션을 세팅하는 위젯
-                    initialCameraPosition: cameraPosition,
+                    initialCameraPosition: initCameraPosition,
                     locationButtonEnable: true, // 현 위치를 나타내는 버튼
                     mapType: NMapType.basic,
                     nightModeEnable: true,
@@ -93,6 +123,7 @@ class _HomePageState extends State<HomePage> {
                     // ),
                   ),
                   onMapReady: (controller) {
+                    mapController = controller;
                     print("네이버 맵 로딩됨!");
                     // final infoWindow = NInfoWindow.onMap(
                     //     id: "test", position: target, text: "인포윈도우 텍스트");
