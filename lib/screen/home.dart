@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
         .orderByChild("서울특별시 노원구")
         .startAt("서울특별시 노원구")
         .endAt("서울특별시 노원구" "\uf8ff");
-    print(a);
+    print(a.onValue);
     var response = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
