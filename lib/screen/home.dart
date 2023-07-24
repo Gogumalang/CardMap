@@ -51,13 +51,14 @@ class _HomePageState extends State<HomePage> {
     position.longitude.toString();
     print(lat);
     print(lon);
+
     DatabaseReference ref = FirebaseDatabase.instance.ref("서울사랑상품권");
 
     Query a = ref
         .orderByChild("서울특별시 노원구")
         .startAt("서울특별시 노원구")
         .endAt("서울특별시 노원구" "\uf8ff");
-    print(a.onValue);
+    print(a);
     var response = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
@@ -87,18 +88,19 @@ class _HomePageState extends State<HomePage> {
 
     return adress;
   }
-  // Future<List<String>> cameraLocation() async {
-  //   late List<String> adress,find;
-  //   NCameraPosition cameraPosition = await mapController.getCameraPosition();
-  //   final lat = cameraPosition.target.latitude.toString();
-  //   final lon = cameraPosition.target.longitude.toString();
-  //   final zoom = cameraPosition.zoom;
 
-  //   adress = await fetchAlbum(lat, lon);
-  //   if(zoom>=15.0)
-  //   print(object)
-  //   return name;
-  // }
+  Future<List<String>> cameraLocation() async {
+    late List<String> adress, find;
+    NCameraPosition cameraPosition = await mapController.getCameraPosition();
+    final lat = cameraPosition.target.latitude.toString();
+    final lon = cameraPosition.target.longitude.toString();
+    final zoom = cameraPosition.zoom;
+
+    adress = await fetchAlbum(lat, lon);
+
+    print(adress);
+    return adress;
+  }
 
   @override
   Widget build(BuildContext context) {
