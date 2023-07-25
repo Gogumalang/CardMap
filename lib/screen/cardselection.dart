@@ -758,6 +758,8 @@ class _CardSelectionState extends State<CardSelection> {
 
                   //clickedCardList.clear();
                   setState(() {});
+
+                  Get.back();
                 },
                 child: const Text(
                   '등록하기',
