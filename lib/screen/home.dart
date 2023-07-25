@@ -39,6 +39,10 @@ class _HomePageState extends State<HomePage> {
   late NCameraPosition initCameraPosition;
   final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
+  List selectedCards = [];
+  List selectedCardsIndex = [];
+  bool clickedChecked = false;
+
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
     "X-NCP-APIGW-API-KEY":
@@ -74,13 +78,7 @@ class _HomePageState extends State<HomePage> {
     print(lat);
     print(lon);
 
-    DatabaseReference ref = realtime.ref("서울사랑상품권");
-
-    // Query a = ref
-    //     .orderByChild("서울특별시 노원구")
-    //     .startAt("서울특별시 노원구")
-    //     .endAt("서울특별시 노원구" "\uf8ff");
-
+    
     var responseRoadAddress = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
@@ -118,6 +116,8 @@ class _HomePageState extends State<HomePage> {
     var myjsonDongNumber2 =
         jsonDecode(jsonAddressData)["results"][0]['land']['number2'];
 
+    //String hi = "$myjsonSi $myjsonGu $myjsonRoadName $myjsonRoadNumber";
+
     List<String> roadAddress = [
       myjsonSi,
       myjsonGu,
@@ -133,6 +133,7 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
+    //print(hi);
     print(roadAddress);
     print(address);
 
@@ -203,6 +204,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    for (int i = 0;
+        i < (context.watch<SelectedCard>().finalSelectedCard.length);
+        i++) {
+      clickedChecked = false;
+      for (int j = 0; j < selectedCards.length; j++) {
+        if (context.watch<SelectedCard>().finalSelectedCard[i] ==
+            selectedCards[j]) {
+          clickedChecked = true;
+          break;
+        }
+      }
+      if (clickedChecked == true) {
+        selectedCardsIndex.add('1');
+      } else {
+        selectedCardsIndex.add('0');
+      }
+    }
+
     return Scaffold(
       key: _key, //drawer
       endDrawer: const MorePage(), //drawer
@@ -247,10 +266,10 @@ class _HomePageState extends State<HomePage> {
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       border: Border(
-                        top: BorderSide(width: 1, color: Colors.lightGreen),
-                        bottom: BorderSide(width: 1, color: Colors.lightGreen),
-                        right: BorderSide(width: 1, color: Colors.lightGreen),
-                        left: BorderSide(width: 1, color: Colors.lightGreen),
+                        top: BorderSide(width: 1, color: Colors.black38),
+                        bottom: BorderSide(width: 1, color: Colors.black38),
+                        right: BorderSide(width: 1, color: Colors.black38),
+                        left: BorderSide(width: 1, color: Colors.black38),
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -282,10 +301,10 @@ class _HomePageState extends State<HomePage> {
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       border: Border(
-                        top: BorderSide(width: 1, color: Colors.lightGreen),
-                        bottom: BorderSide(width: 1, color: Colors.lightGreen),
-                        right: BorderSide(width: 1, color: Colors.lightGreen),
-                        left: BorderSide(width: 1, color: Colors.lightGreen),
+                        top: BorderSide(width: 1, color: Colors.black38),
+                        bottom: BorderSide(width: 1, color: Colors.black38),
+                        right: BorderSide(width: 1, color: Colors.black38),
+                        left: BorderSide(width: 1, color: Colors.black38),
                       ),
                       borderRadius: BorderRadius.all(
                         Radius.circular(10),
@@ -320,8 +339,12 @@ class _HomePageState extends State<HomePage> {
                                 .finalSelectedCard
                                 .length);
                         i++)
-                      cardButton(
-                          "${context.watch<SelectedCard>().finalSelectedCard[i]}"),
+                      if (selectedCardsIndex[i] == '0')
+                        cardButton(
+                            "${context.watch<SelectedCard>().finalSelectedCard[i]}")
+                      else
+                        cardButton10(
+                            "${context.watch<SelectedCard>().finalSelectedCard[i]}"),
                   ],
                 ),
               ),
@@ -340,27 +363,90 @@ class _HomePageState extends State<HomePage> {
           decoration: const BoxDecoration(
             color: Colors.white,
             border: Border(
-              top: BorderSide(width: 1, color: Colors.lightGreen),
-              bottom: BorderSide(width: 1, color: Colors.lightGreen),
-              right: BorderSide(width: 1, color: Colors.lightGreen),
-              left: BorderSide(width: 1, color: Colors.lightGreen),
+              top: BorderSide(width: 1, color: Colors.black38),
+              bottom: BorderSide(width: 1, color: Colors.black38),
+              right: BorderSide(width: 1, color: Colors.black38),
+              left: BorderSide(width: 1, color: Colors.black38),
             ),
             borderRadius: BorderRadius.all(
-              Radius.circular(10),
+              Radius.circular(15),
             ),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             child: Text(
               cardName,
-              //style: const TextStyle(color: Colors.lightGreen),
             ),
           ),
         ),
-        onTap: () {},
+        onTap: () {
+          selectedCardsIndex = [];
+          selectedCards.add(cardName);
+          setState(() {});
+        },
       ),
     );
   }
+
+  Padding cardButton10(String cardName) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: InkWell(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.lightGreen,
+            border: Border(
+              top: BorderSide(width: 1, color: Colors.black12),
+              bottom: BorderSide(width: 1, color: Colors.black12),
+              right: BorderSide(width: 1, color: Colors.black12),
+              left: BorderSide(width: 1, color: Colors.black12),
+            ),
+            borderRadius: BorderRadius.all(
+              Radius.circular(15),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            child: Text(
+              cardName,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+        onTap: () {
+          selectedCardsIndex = [];
+          selectedCards.remove(cardName);
+          setState(() {});
+        },
+      ),
+    );
+  }
+
+  // Container cardButton(String cardName) {
+  //   return Container(
+  //     padding: const EdgeInsets.only(right: 6),
+  //     decoration: const BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border(
+  //         top: BorderSide(width: 1, color: Colors.black38),
+  //         bottom: BorderSide(width: 1, color: Colors.black38),
+  //         right: BorderSide(width: 1, color: Colors.black38),
+  //         left: BorderSide(width: 1, color: Colors.black38),
+  //       ),
+  //       borderRadius: BorderRadius.all(
+  //         Radius.circular(15),
+  //       ),
+  //     ),
+  //     child: TextButton(
+  //       onPressed: () {
+  //         selectedCards.add(cardName);
+  //         setState(() {});
+  //       },
+  //       child: Text(cardName),
+  //       //style: const TextStyle(color: Colors.lightGreen),
+  //     ),
+  //   );
+  // }
 }
 // class NaverService {
 //   late NCameraPosition cameraPosition;

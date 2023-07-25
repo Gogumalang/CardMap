@@ -77,7 +77,7 @@ class _MorePageState extends State<MorePage> {
                 height: 20,
               ),
               const Divider(
-                color: Colors.lightGreen,
+                color: Colors.black38,
               ),
               const SizedBox(
                 height: 20,
@@ -116,7 +116,7 @@ class _MorePageState extends State<MorePage> {
                 ],
               ),
               const Divider(
-                color: Colors.lightGreen,
+                color: Colors.black38,
               ),
               ListTile(
                 leading: const Icon(
@@ -125,7 +125,7 @@ class _MorePageState extends State<MorePage> {
                 ),
                 title: const Text(
                   "문의",
-                  style: TextStyle(color: Colors.lightGreen),
+                  style: TextStyle(color: Colors.black),
                 ),
                 onTap: () {},
               ),
@@ -136,7 +136,7 @@ class _MorePageState extends State<MorePage> {
                 ),
                 title: const Text(
                   "마이페이지",
-                  style: TextStyle(color: Colors.lightGreen),
+                  style: TextStyle(color: Colors.black),
                 ),
                 onTap: () {},
               ),
@@ -147,7 +147,7 @@ class _MorePageState extends State<MorePage> {
                 ),
                 title: const Text(
                   "로그아웃",
-                  style: TextStyle(color: Colors.lightGreen),
+                  style: TextStyle(color: Colors.black),
                 ),
                 onTap: signUserOut,
               ),
