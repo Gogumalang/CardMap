@@ -54,11 +54,6 @@ class _SearchScreenState extends State<SearchScreen> {
             }
             print(data.values);
 
-            // if (doc.data().toString().contains(_searchText)) {
-            //   print("search : $_searchText");
-            //   searchResults.add(doc.data());
-            //   print(searchResults);
-            // }
             return SizedBox(
               height: 500,
               width: 120,

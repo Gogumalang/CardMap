@@ -5,29 +5,28 @@ import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class TestModel {
-  final String number;
-  final String name;
-  final String address;
-  final String card;
+// class TestModel {
+//   final String name;
+//   final String road_addr;
 
-  TestModel(this.number, this.name, this.address, this.card);
+//   TestModel(this.name, this.road_addr);
 
-  Map<String, dynamic> toJson() {
-    return {
-      "name": name,
-      "card": card,
-      "address": address,
-      "number": number,
-    };
-  }
-}
+//   factory TestModel.fromJson(Map<String, dynamic> Json) {
+//     return TestModel(name, road_addr);
+//   }
+// }
+// 1. json - > List<Map<string,dy>> 하나의 객체만 가져오는건가? 전체를 다 가져올 순 없는 건가?
+// 2. List<Map>> findList = jsonlist.where((element) 해당되는 (찾고자하는 문자열이 포함되는 ) 객체를 찾는 과정
+// 3. findList 에서 주소를 가져온다. 한놈씩
+// 4. geocoding 을 헤서 위경도를 얻는다.
+// 5. 위경도에 마커를 띄운다.
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -79,13 +78,7 @@ class _HomePageState extends State<HomePage> {
     print(lat);
     print(lon);
 
-    DatabaseReference ref = realtime.ref("서울사랑상품권");
-
-    Query a = ref
-        .orderByChild("서울특별시 노원구")
-        .startAt("서울특별시 노원구")
-        .endAt("서울특별시 노원구" "\uf8ff");
-    print(a);
+    
     var responseRoadAddress = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
@@ -97,8 +90,8 @@ class _HomePageState extends State<HomePage> {
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=addr'),
         headers: headerss);
 
-    print(responseRoadAddress.body);
-    print(responseAddress.body);
+    // print(responseRoadAddress.body);
+    // print(responseAddress.body);
 
     String jsonRoadAddressData = responseRoadAddress.body;
     String jsonAddressData = responseAddress.body;
@@ -187,6 +180,28 @@ class _HomePageState extends State<HomePage> {
     return adress;
   }
 
+  List _items = [];
+  List findItems = [];
+  Future<void> readJson() async {
+    //  json파일을 list 로 저장하는 함수.
+    final String response =
+        await rootBundle.loadString('assets/images/seoul.json');
+    final data = await json.decode(response);
+    setState(() {
+      _items = data["items"];
+      print("..number = ${_items.length}");
+      print("..첫번째꺼 마 나온나 = ${_items[180000]}");
+      print("..이름 마 나온나 = ${_items[180000]['name']}");
+    });
+  }
+
+  void findList() {
+    // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
+    findItems = _items
+        .where((element) => element['name'].toString().contains('파리바게뜨'))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     for (int i = 0;
@@ -228,9 +243,6 @@ class _HomePageState extends State<HomePage> {
                   onMapReady: (controller) {
                     mapController = controller;
                     print("네이버 맵 로딩됨!");
-                    // final infoWindow = NInfoWindow.onMap(
-                    //     id: "test", position: target, text: "인포윈도우 텍스트");
-                    // controller.addOverlay(infoWindow);
                   },
                   onSymbolTapped: (symbolInfo) => fetchAlbum(
                       symbolInfo.position.latitude.toString(),
@@ -262,9 +274,16 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     child: TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Get.to(const SearchScreen(),
                             transition: Transition.noTransition);
+                        /*------------------------------------------------------------------------------------------*/
+                        // await readJson(); // 디버깅 목적으로 사용하였습니다.
+                        // findList();
+
+                        // print("${findItems[0]}");
+                        // print("${findItems[600]}");
+                        // print("${findItems.length}");
                       },
                       child: const Text(
                         "search",
