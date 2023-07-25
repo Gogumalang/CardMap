@@ -4,7 +4,6 @@ import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,13 +37,30 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Position position;
-  late NCameraPosition cameraPosition;
+  late NCameraPosition initCameraPosition;
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
     "X-NCP-APIGW-API-KEY":
         "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // 개인 시크릿 키
   };
+  @override
+  void initState() {
+    // 현재 위치를 받아오기
+    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((value) {
+      position = value;
+      setState(() {
+        initCameraPosition = NCameraPosition(
+            target: NLatLng(position.latitude, position.longitude), zoom: 15);
+        isReady = true;
+      });
+    });
+    super.initState();
+  }
+
+  late NaverMapController mapController;
 
   Future<List<String>> fetchAlbum(String lat, String lon) async {
     FirebaseDatabase realtime = FirebaseDatabase.instance;
@@ -52,17 +68,25 @@ class _HomePageState extends State<HomePage> {
     // Position position = await Geolocator.getCurrentPosition(
     //     desiredAccuracy: LocationAccuracy.high);
     // String lat = "37.30868980127576";
-    // //position.latitude.toString();
+    position.latitude.toString();
     // String lon = "126.83061361312866";
-    // //position.longitude.toString();
 
+    position.longitude.toString();
     print(lat);
     print(lon);
 
-    var responseRoadAddress = await http.get(
+    DatabaseReference ref = realtime.ref("서울사랑상품권");
+
+    Query a = ref
+        .orderByChild("서울특별시 노원구")
+        .startAt("서울특별시 노원구")
+        .endAt("서울특별시 노원구" "\uf8ff");
+    print(a);
+    var response = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
         headers: headerss);
+    //print(response.body);
 
     var responseAddress = await http.get(
         Uri.parse(
@@ -143,23 +167,18 @@ class _HomePageState extends State<HomePage> {
     return roadAddress;
   }
 
-  @override
-  void initState() {
-    // 현재 위치를 받아오기
-    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-        .then((value) {
-      position = value;
-      setState(() {
-        cameraPosition = NCameraPosition(
-            target: NLatLng(position.latitude, position.longitude), zoom: 15);
-        isReady = true;
-      });
-    });
-    super.initState();
-  }
+  Future<List<String>> cameraLocation() async {
+    late List<String> adress, find;
+    NCameraPosition cameraPosition = await mapController.getCameraPosition();
+    final lat = cameraPosition.target.latitude.toString();
+    final lon = cameraPosition.target.longitude.toString();
+    final zoom = cameraPosition.zoom;
 
-  final controller = NaverMapController;
-  final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
+    adress = await fetchAlbum(lat, lon);
+
+    print(adress);
+    return adress;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +191,7 @@ class _HomePageState extends State<HomePage> {
               ? NaverMap(
                   options: NaverMapViewOptions(
                     // naver map 옵션을 세팅하는 위젯
-                    initialCameraPosition: cameraPosition,
+                    initialCameraPosition: initCameraPosition,
                     locationButtonEnable: true, // 현 위치를 나타내는 버튼
                     mapType: NMapType.basic,
                     nightModeEnable: true,
@@ -182,6 +201,7 @@ class _HomePageState extends State<HomePage> {
                     // ),
                   ),
                   onMapReady: (controller) {
+                    mapController = controller;
                     print("네이버 맵 로딩됨!");
                     // final infoWindow = NInfoWindow.onMap(
                     //     id: "test", position: target, text: "인포윈도우 텍스트");
