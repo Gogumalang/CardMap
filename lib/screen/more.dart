@@ -1,7 +1,9 @@
+import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/cardselection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class MorePage extends StatefulWidget {
   const MorePage({
@@ -75,7 +77,7 @@ class _MorePageState extends State<MorePage> {
                 height: 20,
               ),
               const Divider(
-                color: Colors.black54,
+                color: Colors.lightGreen,
               ),
               const SizedBox(
                 height: 20,
@@ -89,9 +91,11 @@ class _MorePageState extends State<MorePage> {
                   ],
                 ),
               ),
-              cardList("문화 누리 카드"),
-              cardList("아동 복지 카드"),
-              cardList("지역 사랑 카드"),
+              for (int i = 0;
+                  i < (context.watch<SelectedCard>().finalSelectedCard.length);
+                  i++)
+                cardList(
+                    "${context.watch<SelectedCard>().finalSelectedCard[i]}"),
               const SizedBox(
                 height: 20,
               ),
@@ -106,27 +110,45 @@ class _MorePageState extends State<MorePage> {
                     },
                     child: const Text(
                       "+ 카드 추가 등록",
-                      style: TextStyle(color: Colors.black38),
+                      style: TextStyle(color: Colors.lightGreen),
                     ),
                   ),
                 ],
               ),
               const Divider(
-                color: Colors.black54,
+                color: Colors.lightGreen,
               ),
               ListTile(
-                leading: const Icon(Icons.question_answer_outlined),
-                title: const Text("문의"),
+                leading: const Icon(
+                  Icons.question_answer_outlined,
+                  color: Colors.lightGreen,
+                ),
+                title: const Text(
+                  "문의",
+                  style: TextStyle(color: Colors.lightGreen),
+                ),
                 onTap: () {},
               ),
               ListTile(
-                leading: const Icon(Icons.my_library_books_outlined),
-                title: const Text("마이페이지"),
+                leading: const Icon(
+                  Icons.my_library_books_outlined,
+                  color: Colors.lightGreen,
+                ),
+                title: const Text(
+                  "마이페이지",
+                  style: TextStyle(color: Colors.lightGreen),
+                ),
                 onTap: () {},
               ),
               ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text("로그아웃"),
+                leading: const Icon(
+                  Icons.logout,
+                  color: Colors.lightGreen,
+                ),
+                title: const Text(
+                  "로그아웃",
+                  style: TextStyle(color: Colors.lightGreen),
+                ),
                 onTap: signUserOut,
               ),
             ],
@@ -142,7 +164,7 @@ class _MorePageState extends State<MorePage> {
       child: Text(
         cardName,
         style: const TextStyle(
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
       ),

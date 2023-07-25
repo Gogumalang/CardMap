@@ -1,4 +1,5 @@
 import 'package:cardmap/firebase_options.dart';
+import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider<SelectedCard>(create: (_) => SelectedCard())
+  ], child: const MyApp()));
   //parkseyoung babo
   //ahnseoyoung 1004
   //yoonyohan cheunjae

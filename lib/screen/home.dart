@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,6 +9,25 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+class TestModel {
+  final String number;
+  final String name;
+  final String address;
+  final String card;
+
+  TestModel(this.number, this.name, this.address, this.card);
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "card": card,
+      "address": address,
+      "number": number,
+    };
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -43,16 +63,19 @@ class _HomePageState extends State<HomePage> {
   late NaverMapController mapController;
 
   Future<List<String>> fetchAlbum(String lat, String lon) async {
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    FirebaseDatabase realtime = FirebaseDatabase.instance;
+
+    // Position position = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
     // String lat = "37.30868980127576";
     position.latitude.toString();
     // String lon = "126.83061361312866";
+
     position.longitude.toString();
     print(lat);
     print(lon);
 
-    DatabaseReference ref = FirebaseDatabase.instance.ref("서울사랑상품권");
+    DatabaseReference ref = realtime.ref("서울사랑상품권");
 
     Query a = ref
         .orderByChild("서울특별시 노원구")
@@ -65,28 +88,83 @@ class _HomePageState extends State<HomePage> {
         headers: headerss);
     //print(response.body);
 
-    String jsonData = response.body;
+    var responseAddress = await http.get(
+        Uri.parse(
+            'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=addr'),
+        headers: headerss);
 
-    //print(jsonData);
-    var myjsonSi =
-        jsonDecode(jsonData)["results"][0]['region']['area1']['name'];
-    var myjsonGu =
-        jsonDecode(jsonData)["results"][0]['region']['area2']['name'];
+    print(responseRoadAddress.body);
+    print(responseAddress.body);
+
+    String jsonRoadAddressData = responseRoadAddress.body;
+    String jsonAddressData = responseAddress.body;
+
+    // print(jsonRoadAddressData);
+    // print(jsonAddressData);
+
+    var myjsonGu = jsonDecode(jsonRoadAddressData)["results"][0]['region']
+        ['area2']['name'];
+    var myjsonSi = jsonDecode(jsonRoadAddressData)["results"][0]['region']
+        ['area1']['name'];
+    var myjsonRoadName =
+        jsonDecode(jsonRoadAddressData)["results"][0]['land']['name'];
+    var myjsonRoadNumber =
+        jsonDecode(jsonRoadAddressData)["results"][0]['land']['number1'];
     var myjsonDong =
-        jsonDecode(jsonData)["results"][0]['region']['area3']['name'];
-    var myjsonNumber1 = jsonDecode(jsonData)["results"][0]['land']['number1'];
-    var myjsonNumber2 = jsonDecode(jsonData)["results"][0]['land']['number2'];
+        jsonDecode(jsonAddressData)["results"][0]['region']['area3']['name'];
+    var myjsonEub =
+        jsonDecode(jsonAddressData)["results"][0]['region']['area4']['name'];
+    var myjsonDongNumber1 =
+        jsonDecode(jsonAddressData)["results"][0]['land']['number1'];
+    var myjsonDongNumber2 =
+        jsonDecode(jsonAddressData)["results"][0]['land']['number2'];
 
-    List<String> adress = [
+    List<String> roadAddress = [
+      myjsonSi,
+      myjsonGu,
+      myjsonRoadName,
+      myjsonRoadNumber,
+    ];
+    List<String> address = [
       myjsonSi,
       myjsonGu,
       myjsonDong,
-      myjsonNumber1,
-      myjsonNumber2
+      myjsonEub,
+      myjsonDongNumber1,
+      myjsonDongNumber2,
     ];
-    print(adress);
 
-    return adress;
+    print(roadAddress);
+    print(address);
+
+    // await realtime.ref("서울사랑상품권").child("1").set(TestModel(
+    //       "01023282938",
+    //       "KFC",
+    //       "address",
+    //       "nuri",
+    //     ).toJson());
+
+    DataSnapshot snapshot = await realtime
+        .ref("통영사랑상품권")
+        //.orderByValue()
+        .equalTo("경상남도 통영시 도천상가안길 18, 101동 112호 (도천동, 동원나폴리상가)")
+        .get();
+    if (snapshot.exists) {
+      List<Object?> value = snapshot.value as List<Object?>;
+      print(value);
+    } else {
+      print('No data available.');
+    }
+    // Map<dynamic, dynamic> value = snapshot.value as Map<dynamic, dynamic>;
+
+    // final idek =
+    //     realtime.ref('통영사랑상품권').orderByChild('road_addr').equalTo('경상남도 통영시');
+    // print(idek);
+
+    // final idek = realtime.ref('통영사랑상품권');
+    // print(idek);
+
+    return roadAddress;
   }
 
   Future<List<String>> cameraLocation() async {
@@ -146,10 +224,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Container(
                     // 검색창 버튼
-                    width: 310,
+                    width: 320,
                     height: 50,
                     decoration: const BoxDecoration(
                       color: Colors.white,
+                      border: Border(
+                        top: BorderSide(width: 1, color: Colors.lightGreen),
+                        bottom: BorderSide(width: 1, color: Colors.lightGreen),
+                        right: BorderSide(width: 1, color: Colors.lightGreen),
+                        left: BorderSide(width: 1, color: Colors.lightGreen),
+                      ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     child: TextButton(
@@ -159,12 +243,12 @@ class _HomePageState extends State<HomePage> {
                       },
                       child: const Text(
                         "search",
-                        style: TextStyle(color: Colors.black26),
+                        style: TextStyle(color: Colors.lightGreen),
                       ),
                     ),
                   ),
                   const SizedBox(
-                    width: 30,
+                    width: 10,
                   ),
                   Container(
                     // 더보기란
@@ -172,6 +256,12 @@ class _HomePageState extends State<HomePage> {
                     height: 50,
                     decoration: const BoxDecoration(
                       color: Colors.white,
+                      border: Border(
+                        top: BorderSide(width: 1, color: Colors.lightGreen),
+                        bottom: BorderSide(width: 1, color: Colors.lightGreen),
+                        right: BorderSide(width: 1, color: Colors.lightGreen),
+                        left: BorderSide(width: 1, color: Colors.lightGreen),
+                      ),
                       borderRadius: BorderRadius.all(
                         Radius.circular(10),
                       ),
@@ -180,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                       iconSize: 25,
                       icon: const Icon(
                         Icons.menu_rounded,
-                        color: Colors.amber,
+                        color: Colors.lightGreen,
                       ),
                       onPressed: () {
                         _key.currentState!.openEndDrawer(); //drawer open
@@ -190,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(
-                height: 15,
+                height: 6,
               ),
               SingleChildScrollView(
                 //카드 스크롤
@@ -198,39 +288,51 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Container(
-                      width: 250,
-                      height: 25,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Container(
-                      width: 250,
-                      height: 25,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Container(
-                      width: 250,
-                      height: 25,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                    ),
+                    for (int i = 0;
+                        i <
+                            (context
+                                .watch<SelectedCard>()
+                                .finalSelectedCard
+                                .length);
+                        i++)
+                      cardButton(
+                          "${context.watch<SelectedCard>().finalSelectedCard[i]}"),
                   ],
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Padding cardButton(String cardName) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: InkWell(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(width: 1, color: Colors.lightGreen),
+              bottom: BorderSide(width: 1, color: Colors.lightGreen),
+              right: BorderSide(width: 1, color: Colors.lightGreen),
+              left: BorderSide(width: 1, color: Colors.lightGreen),
+            ),
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            child: Text(
+              cardName,
+              //style: const TextStyle(color: Colors.lightGreen),
+            ),
+          ),
+        ),
+        onTap: () {},
       ),
     );
   }

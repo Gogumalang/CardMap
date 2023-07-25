@@ -1,5 +1,7 @@
+import 'package:cardmap/provider/selected_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class CardSelection extends StatefulWidget {
   const CardSelection({super.key});
@@ -9,11 +11,10 @@ class CardSelection extends StatefulWidget {
 }
 
 class _CardSelectionState extends State<CardSelection> {
-  String pClicked = '';
+  String pClicked = '서울';
   String cClicked = '전체';
   String cardClicked = '';
-
-  List clickedCardList = [];
+  late List clickedCardList = context.watch<SelectedCard>().finalSelectedCard;
   List clickedCardListFinal = [];
 
   final provinceList = [
@@ -176,7 +177,7 @@ class _CardSelectionState extends State<CardSelection> {
     ],
   ];
 
-  final cardListIndex = [
+  var cardListIndex = [
     [
       [0, 0, 0],
       [0, 0, 0],
@@ -280,6 +281,27 @@ class _CardSelectionState extends State<CardSelection> {
 
   @override
   Widget build(BuildContext context) {
+    for (int h = 0; h < clickedCardList.length; h++) {
+      for (int i = 0; i < provinceList.length; i++) {
+        if (provinceList[i] == clickedCardList[h].substring(1, 3)) {
+          for (int k = 0; k < cardList[i][0].length; k++) {
+            if (cardList[i][0][k] == clickedCardList[h].substring(5)) {
+              cardListIndex[i][0][k] = 1;
+            }
+          }
+        } else {
+          for (int j = 0; j < cityList[i].length; j++) {
+            if (cityList[i][j] == clickedCardList[h].substring(1, 3)) {
+              for (int k = 0; k < cardList[i][j].length; k++) {
+                if (cardList[i][j][k] == clickedCardList[h].substring(5)) {
+                  cardListIndex[i][j][k] = 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     container1(String location) {
       return Container(
         width: 91,
@@ -721,6 +743,21 @@ class _CardSelectionState extends State<CardSelection> {
                 ),
                 onPressed: () {
                   clickedCardListFinal = clickedCardList;
+
+                  // for (int i = 0; i < provinceList.length; i++) {
+                  //   for (int j = 0; j < cityList[i].length; j++) {
+                  //     for (int k = 0; k < cardList[i][j].length; k++) {
+                  //       cardListIndex[i][j][k] = 0;
+                  //       container3(cardList[i][j][k]);
+                  //     }
+                  //   }
+                  // }
+                  context
+                      .read<SelectedCard>()
+                      .updateCardList(clickedCardListFinal);
+
+                  //clickedCardList.clear();
+                  setState(() {});
                 },
                 child: const Text(
                   '등록하기',
@@ -740,7 +777,18 @@ class _CardSelectionState extends State<CardSelection> {
                   padding: MaterialStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 10, vertical: 14)),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  for (int i = 0; i < provinceList.length; i++) {
+                    for (int j = 0; j < cityList[i].length; j++) {
+                      for (int k = 0; k < cardList[i][j].length; k++) {
+                        cardListIndex[i][j][k] = 0;
+                        container3(cardList[i][j][k]);
+                      }
+                    }
+                  }
+                  clickedCardList.clear();
+                  setState(() {});
+                },
                 icon: const Icon(
                   Icons.refresh,
                   color: Colors.black,
