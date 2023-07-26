@@ -42,6 +42,9 @@ class _HomePageState extends State<HomePage> {
   List selectedCards = [];
   List selectedCardsIndex = [];
   bool clickedChecked = false;
+  final marker = NMarker(
+      id: 'test',
+      position: const NLatLng(36.01979137115008, 129.34156894683838));
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -78,7 +81,6 @@ class _HomePageState extends State<HomePage> {
     print(lat);
     print(lon);
 
-    
     var responseRoadAddress = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
@@ -242,6 +244,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onMapReady: (controller) {
                     mapController = controller;
+                    controller.addOverlay(marker);
                     print("네이버 맵 로딩됨!");
                   },
                   onSymbolTapped: (symbolInfo) => fetchAlbum(
