@@ -1,30 +1,12 @@
 import 'dart:convert';
-
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
-import 'package:cardmap/screen/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-
-// class TestModel {
-//   final String name;
-//   final String road_addr;
-
-//   TestModel(this.name, this.road_addr);
-
-//   factory TestModel.fromJson(Map<String, dynamic> Json) {
-//     return TestModel(name, road_addr);
-//   }
-// }
-// 1. json - > List<Map<string,dy>> 하나의 객체만 가져오는건가? 전체를 다 가져올 순 없는 건가?
-// 2. List<Map>> findList = jsonlist.where((element) 해당되는 (찾고자하는 문자열이 포함되는 ) 객체를 찾는 과정
-// 3. findList 에서 주소를 가져온다. 한놈씩
-// 4. geocoding 을 헤서 위경도를 얻는다.
-// 5. 위경도에 마커를 띄운다.
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,9 +22,12 @@ class _HomePageState extends State<HomePage> {
   List selectedCards = [];
   List selectedCardsIndex = [];
   bool clickedChecked = false;
-
-  // 127.1054328
-  // 37.3595963
+  List items = [];
+  List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
+  List shop = []; //가맹점 하나를 저장하는 변수
+  late Map<String, dynamic> location;
+  late List<String> address; // fetchAddress 실행했을 때 리턴 받는 변수, 주소를 출력한다.
+  late List<Map<String, String>> findCoords;
 
   final marker = NMarker(
       id: 'test',
@@ -61,35 +46,21 @@ class _HomePageState extends State<HomePage> {
       position = value;
       setState(() {
         initCameraPosition = NCameraPosition(
-            target: NLatLng(position.latitude, position.longitude), zoom: 5);
+            target: NLatLng(position.latitude, position.longitude), zoom: 15);
         isReady = true;
       });
     });
-    readJson();
 
     super.initState();
   }
 
   late NaverMapController mapController;
 
-  Future<List<String>> fetchAlbum(String lat, String lon) async {
-    // Position position = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
-    position.latitude.toString();
-    position.longitude.toString();
-
-    // print(lat);
-    // print(lon);
-    // lat = "37.3595963";
-    // lon = "127.1054328";
-
+  Future<List<String>> fetchAddress(String lat, String lon) async {
     var responseRoadAddress = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
         headers: headerss);
-
-    //print(responseRoadAddress.body);
-
 
     var responseAddress = await http.get(
         Uri.parse(
@@ -131,73 +102,73 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
+    print(jsonRoadAddressData);
     print("roadAddr = $roadAddress");
     print("addr = $address");
 
     return roadAddress;
   }
 
-  Map<String, dynamic> findLocation(roadAddress) {
-    findItems = _items
+  Map<String, dynamic> findShop(List<String> roadAddress) {
+    shop = items
         .where((element) =>
             element['road_addr'].toString().contains(roadAddress[1]))
         .toList();
+    print(roadAddress[1]);
+    print(shop);
 
-    findItems = findItems
-        .where((element) =>
-            element['road_addr'].toString().contains(roadAddress[2]))
+    shop = shop
+        .where((element) => element['road_addr']
+            .toString()
+            .contains('${roadAddress[2]} ${roadAddress[3]}'))
         .toList();
+    print(roadAddress[2]);
+    print(shop);
 
-    findItems = findItems
-        .where((element) =>
-            element['road_addr'].toString().contains(roadAddress[3]))
-        .toList();
+    // shop = shop
+    //     .where((element) =>
+    //         element['road_addr'].toString().contains(roadAddress[3]))
+    //     .toList();
+    // print(roadAddress[3]);
+    // print(shop);
 
-    print('openDrawerWLocation');
-    return (findItems[0]);
+    return (shop[0]);
   }
 
-  late Map<String, dynamic> location;
-  late List<String> address; // fetchAlbum 실행했을 때 리턴 받는 변수, 주소를 출력한다.
-  late List<Map<String, String>> findCoords;
-
   Future<List<String>> cameraLocation() async {
-    late List<String> adress, find;
+    late List<String> cameraAddress;
     NCameraPosition cameraPosition = await mapController.getCameraPosition();
     final lat = cameraPosition.target.latitude.toString();
     final lon = cameraPosition.target.longitude.toString();
     final zoom = cameraPosition.zoom;
 
-    adress = await fetchAlbum(lat, lon);
+    cameraAddress = await fetchAddress(lat, lon);
 
-    print("camera = $adress");
-    return adress;
+    print("camera = $cameraAddress");
+    return cameraAddress;
   }
 
-  List _items = [];
-  List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
-  Future<void> readJson() async {
-    //  json파일을 list 로 저장하는 함수.
+  Future<void> readJsonFile() async {
     final String response =
         await rootBundle.loadString('assets/json/seoul.json');
     final data = await json.decode(response);
     setState(() {
-      _items = data["items"];
-      print("..number = ${_items.length}");
+      items = data["items"];
+      print("..number = ${items.length}");
     });
-    print('readJson');
+    print('readJsonFile');
   }
 
-  void findList() async {
+  void fetchShopList() async {
     // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
     List<String> findlist = await cameraLocation();
-    findItems = _items
+    findItems = items
         .where(
             (element) => element['road_addr'].toString().contains(findlist[2]))
         .toList();
   }
 
-  Future<void> convertCoords() async {
+  Future<void> convertToCoords() async {
     /*------------------------- geocode 활용하기 ------------------------- */
     // 해당되는 주소를 저장한 리스트를 가지고
     // 하나씩 geocode를 통해 좌표를 받아온다.
@@ -210,7 +181,7 @@ class _HomePageState extends State<HomePage> {
       print("$i =${findItems[i]}");
       String lon;
       String lat;
-      String jsonData;
+      String jsonCoords;
       String query = findItems[i]['road_addr'];
       http.Response responseGeocode;
       responseGeocode = await http.get(
@@ -218,44 +189,24 @@ class _HomePageState extends State<HomePage> {
               'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=$query'),
           headers: headerss);
 
-      jsonData = responseGeocode.body;
-      print("Im json $jsonData");
-      if (jsonDecode(jsonData)["meta"]["totalCount"] == 0) {
+      jsonCoords = responseGeocode.body;
+      print("Im json $jsonCoords");
+      if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
         print("메롱~ ");
       } else {
-        lon = jsonDecode(jsonData)["addresses"][0]['x'];
-        lat = jsonDecode(jsonData)["addresses"][0]['y'];
+        lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
+        lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
         print("convert lon = $lon");
         print("convert lon = $lat");
         findCoords.add({"lon": lon, "lat": lat});
         print("힝힝 $findCoords");
       }
-
-      //print("geocode = ${responseGeocode.body}");
     }
-
-    // var url = f""
   }
 
   @override
   Widget build(BuildContext context) {
-    for (int i = 0;
-        i < (context.watch<SelectedCard>().finalSelectedCard.length);
-        i++) {
-      clickedChecked = false;
-      for (int j = 0; j < selectedCards.length; j++) {
-        if (context.watch<SelectedCard>().finalSelectedCard[i] ==
-            selectedCards[j]) {
-          clickedChecked = true;
-          break;
-        }
-      }
-      if (clickedChecked == true) {
-        selectedCardsIndex.add('1');
-      } else {
-        selectedCardsIndex.add('0');
-      }
-    }
+    setCards(context);
 
     return Scaffold(
       key: _key, //drawer
@@ -270,22 +221,23 @@ class _HomePageState extends State<HomePage> {
                     locationButtonEnable: true, // 현 위치를 나타내는 버튼
                     mapType: NMapType.basic,
                     nightModeEnable: true,
-                    // extent: const NLatLngBounds(
-                    //   southWest: NLatLng(31.43, 122.37),
-                    //   northEast: NLatLng(44.35, 132.0),
-                    // ),
+                    extent: const NLatLngBounds(
+                      southWest: NLatLng(31.43, 122.37),
+                      northEast: NLatLng(44.35, 132.0),
+                    ),
                   ),
-                  onMapReady: (controller) {
+                  onMapReady: (controller) async {
+                    await readJsonFile(); //가맹점 정보 읽어오기
                     mapController = controller;
                     controller.addOverlay(marker);
                     print("네이버 맵 로딩됨!");
                   },
                   onSymbolTapped: (symbolInfo) async {
-                    address = await fetchAlbum(
+                    address = await fetchAddress(
                         symbolInfo.position.latitude.toString(),
                         symbolInfo.position.longitude.toString());
                     print(address);
-                    location = findLocation(address);
+                    location = findShop(address);
                     print(location);
                     if (!mounted) return;
                     showModalBottomSheet(
@@ -366,11 +318,11 @@ class _HomePageState extends State<HomePage> {
                         // Get.to(const SearchScreen(),
                         //     transition: Transition.noTransition);
                         /*------------------------------------------------------------------------------------------*/
-                        await readJson(); // 디버깅 목적으로 사용하였습니다.
-                        findList();
+                        await readJsonFile(); // 디버깅 목적으로 사용하였습니다.
+                        fetchShopList();
                         print("${findItems[0]}");
                         print("${findItems.length}");
-                        await convertCoords();
+                        await convertToCoords();
                         //print("난 대단하다.${findCoords[0]}");
                       },
                       child: const Text(
@@ -441,6 +393,26 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  void setCards(BuildContext context) {
+    for (int i = 0;
+        i < (context.watch<SelectedCard>().finalSelectedCard.length);
+        i++) {
+      clickedChecked = false;
+      for (int j = 0; j < selectedCards.length; j++) {
+        if (context.watch<SelectedCard>().finalSelectedCard[i] ==
+            selectedCards[j]) {
+          clickedChecked = true;
+          break;
+        }
+      }
+      if (clickedChecked == true) {
+        selectedCardsIndex.add('1');
+      } else {
+        selectedCardsIndex.add('0');
+      }
+    }
   }
 
   Padding cardButton(String cardName) {
