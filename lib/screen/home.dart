@@ -39,8 +39,13 @@ class _HomePageState extends State<HomePage> {
   List selectedCards = [];
   List selectedCardsIndex = [];
   bool clickedChecked = false;
+
   // 127.1054328
   // 37.3595963
+
+  final marker = NMarker(
+      id: 'test',
+      position: const NLatLng(36.01979137115008, 129.34156894683838));
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -245,6 +250,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onMapReady: (controller) {
                     mapController = controller;
+                    controller.addOverlay(marker);
                     print("네이버 맵 로딩됨!");
                   },
                   onSymbolTapped: (symbolInfo) async {
