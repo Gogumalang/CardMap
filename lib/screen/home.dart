@@ -2,13 +2,10 @@ import 'dart:convert';
 
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
-import 'package:cardmap/screen/search.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -42,6 +39,10 @@ class _HomePageState extends State<HomePage> {
   List selectedCards = [];
   List selectedCardsIndex = [];
   bool clickedChecked = false;
+
+  // 127.1054328
+  // 37.3595963
+
   final marker = NMarker(
       id: 'test',
       position: const NLatLng(36.01979137115008, 129.34156894683838));
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> {
       position = value;
       setState(() {
         initCameraPosition = NCameraPosition(
-            target: NLatLng(position.latitude, position.longitude), zoom: 15);
+            target: NLatLng(position.latitude, position.longitude), zoom: 5);
         isReady = true;
       });
     });
@@ -69,15 +70,12 @@ class _HomePageState extends State<HomePage> {
   late NaverMapController mapController;
 
   Future<List<String>> fetchAlbum(String lat, String lon) async {
-    FirebaseDatabase realtime = FirebaseDatabase.instance;
-
     // Position position = await Geolocator.getCurrentPosition(
     //     desiredAccuracy: LocationAccuracy.high);
-    // String lat = "37.30868980127576";
     position.latitude.toString();
-    // String lon = "126.83061361312866";
-
     position.longitude.toString();
+    // lat = "37.3595963";
+    // lon = "127.1054328";
     print(lat);
     print(lon);
 
@@ -85,21 +83,15 @@ class _HomePageState extends State<HomePage> {
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
         headers: headerss);
-    //print(response.body);
+    //print(responseRoadAddress.body);
 
     var responseAddress = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=addr'),
         headers: headerss);
 
-    // print(responseRoadAddress.body);
-    // print(responseAddress.body);
-
     String jsonRoadAddressData = responseRoadAddress.body;
     String jsonAddressData = responseAddress.body;
-
-    // print(jsonRoadAddressData);
-    // print(jsonAddressData);
 
     var myjsonGu = jsonDecode(jsonRoadAddressData)["results"][0]['region']
         ['area2']['name'];
@@ -135,40 +127,14 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
-    //print(hi);
-    print(roadAddress);
-    print(address);
-
-    // await realtime.ref("서울사랑상품권").child("1").set(TestModel(
-    //       "01023282938",
-    //       "KFC",
-    //       "address",
-    //       "nuri",
-    //     ).toJson());
-
-    DataSnapshot snapshot = await realtime
-        .ref("통영사랑상품권")
-        //.orderByValue()
-        .equalTo("경상남도 통영시 도천상가안길 18, 101동 112호 (도천동, 동원나폴리상가)")
-        .get();
-    if (snapshot.exists) {
-      List<Object?> value = snapshot.value as List<Object?>;
-      print(value);
-    } else {
-      print('No data available.');
-    }
-    // Map<dynamic, dynamic> value = snapshot.value as Map<dynamic, dynamic>;
-
-    // final idek =
-    //     realtime.ref('통영사랑상품권').orderByChild('road_addr').equalTo('경상남도 통영시');
-    // print(idek);
-
-    // final idek = realtime.ref('통영사랑상품권');
-    // print(idek);
+    print("roadAddr = $roadAddress");
+    print("addr = $address");
 
     return roadAddress;
   }
 
+  late List<String> address; // fetchAlbum 실행했을 때 리턴 받는 변수, 주소를 출력한다.
+  late List<Map<String, String>> findCoords;
   Future<List<String>> cameraLocation() async {
     late List<String> adress, find;
     NCameraPosition cameraPosition = await mapController.getCameraPosition();
@@ -178,12 +144,12 @@ class _HomePageState extends State<HomePage> {
 
     adress = await fetchAlbum(lat, lon);
 
-    print(adress);
+    print("camera = $adress");
     return adress;
   }
 
   List _items = [];
-  List findItems = [];
+  List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
   Future<void> readJson() async {
     //  json파일을 list 로 저장하는 함수.
     final String response =
@@ -192,16 +158,56 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _items = data["items"];
       print("..number = ${_items.length}");
-      print("..첫번째꺼 마 나온나 = ${_items[180000]}");
-      print("..이름 마 나온나 = ${_items[180000]['name']}");
     });
   }
 
-  void findList() {
+  void findList() async {
     // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
+    List<String> findlist = await cameraLocation();
     findItems = _items
-        .where((element) => element['name'].toString().contains('파리바게뜨'))
+        .where(
+            (element) => element['road_addr'].toString().contains(findlist[2]))
         .toList();
+  }
+
+  Future<void> convertCoords() async {
+    /*------------------------- geocode 활용하기 ------------------------- */
+    // 해당되는 주소를 저장한 리스트를 가지고
+    // 하나씩 geocode를 통해 좌표를 받아온다.
+    // 좌표를 가지고 변환하여 그 자리에 마커를 표시한다.
+
+    // 어떻게 geocode 를 사용할것인가?
+    // String endPoint =
+    //     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
+    for (int i = 0; i < findItems.length; i++) {
+      print("$i =${findItems[i]}");
+      String lon;
+      String lat;
+      String jsonData;
+      String query = findItems[i]['road_addr'];
+      http.Response responseGeocode;
+      responseGeocode = await http.get(
+          Uri.parse(
+              'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=$query'),
+          headers: headerss);
+
+      jsonData = responseGeocode.body;
+      print("Im json $jsonData");
+      if (jsonDecode(jsonData)["meta"]["totalCount"] == 0) {
+        print("메롱~ ");
+      } else {
+        lon = jsonDecode(jsonData)["addresses"][0]['x'];
+        lat = jsonDecode(jsonData)["addresses"][0]['y'];
+        print("convert lon = $lon");
+        print("convert lon = $lat");
+        findCoords.add({"lon": lon, "lat": lat});
+        print("힝힝 $findCoords");
+      }
+
+      //print("geocode = ${responseGeocode.body}");
+    }
+
+    // var url = f""
   }
 
   @override
@@ -247,9 +253,12 @@ class _HomePageState extends State<HomePage> {
                     controller.addOverlay(marker);
                     print("네이버 맵 로딩됨!");
                   },
-                  onSymbolTapped: (symbolInfo) => fetchAlbum(
-                      symbolInfo.position.latitude.toString(),
-                      symbolInfo.position.longitude.toString()),
+                  onSymbolTapped: (symbolInfo) async {
+                    address = await fetchAlbum(
+                        symbolInfo.position.latitude.toString(),
+                        symbolInfo.position.longitude.toString());
+                    print(address[1]);
+                  },
                 )
               : Container(),
           Column(
@@ -278,15 +287,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        Get.to(const SearchScreen(),
-                            transition: Transition.noTransition);
+                        // Get.to(const SearchScreen(),
+                        //     transition: Transition.noTransition);
                         /*------------------------------------------------------------------------------------------*/
-                        // await readJson(); // 디버깅 목적으로 사용하였습니다.
-                        // findList();
-
-                        // print("${findItems[0]}");
-                        // print("${findItems[600]}");
-                        // print("${findItems.length}");
+                        await readJson(); // 디버깅 목적으로 사용하였습니다.
+                        findList();
+                        print("${findItems[0]}");
+                        print("${findItems.length}");
+                        await convertCoords();
+                        //print("난 대단하다.${findCoords[0]}");
                       },
                       child: const Text(
                         "search",
@@ -451,9 +460,3 @@ class _HomePageState extends State<HomePage> {
   //   );
   // }
 }
-// class NaverService {
-//   late NCameraPosition cameraPosition;
-//   Future currentPosition() async {
-//     cameraPosition = await getCameraPosition();
-//   }
-// }
