@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -60,14 +59,14 @@ class _HomePageState extends State<HomePage> {
         isReady = true;
       });
     });
+    readJson();
+
     super.initState();
   }
 
   late NaverMapController mapController;
 
   Future<List<String>> fetchAlbum(String lat, String lon) async {
-    FirebaseDatabase realtime = FirebaseDatabase.instance;
-
     // Position position = await Geolocator.getCurrentPosition(
     //     desiredAccuracy: LocationAccuracy.high);
     // String lat = "37.30868980127576";
@@ -75,15 +74,13 @@ class _HomePageState extends State<HomePage> {
     // String lon = "126.83061361312866";
 
     position.longitude.toString();
-    print(lat);
-    print(lon);
+    // print(lat);
+    // print(lon);
 
-    
     var responseRoadAddress = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=$lon,$lat&sourcecrs=epsg:4326&output=json&orders=roadaddr'),
         headers: headerss);
-    //print(response.body);
 
     var responseAddress = await http.get(
         Uri.parse(
@@ -116,8 +113,6 @@ class _HomePageState extends State<HomePage> {
     var myjsonDongNumber2 =
         jsonDecode(jsonAddressData)["results"][0]['land']['number2'];
 
-    //String hi = "$myjsonSi $myjsonGu $myjsonRoadName $myjsonRoadNumber";
-
     List<String> roadAddress = [
       myjsonSi,
       myjsonGu,
@@ -133,39 +128,35 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
-    //print(hi);
-    print(roadAddress);
-    print(address);
-
-    // await realtime.ref("서울사랑상품권").child("1").set(TestModel(
-    //       "01023282938",
-    //       "KFC",
-    //       "address",
-    //       "nuri",
-    //     ).toJson());
-
-    DataSnapshot snapshot = await realtime
-        .ref("통영사랑상품권")
-        //.orderByValue()
-        .equalTo("경상남도 통영시 도천상가안길 18, 101동 112호 (도천동, 동원나폴리상가)")
-        .get();
-    if (snapshot.exists) {
-      List<Object?> value = snapshot.value as List<Object?>;
-      print(value);
-    } else {
-      print('No data available.');
-    }
-    // Map<dynamic, dynamic> value = snapshot.value as Map<dynamic, dynamic>;
-
-    // final idek =
-    //     realtime.ref('통영사랑상품권').orderByChild('road_addr').equalTo('경상남도 통영시');
-    // print(idek);
-
-    // final idek = realtime.ref('통영사랑상품권');
-    // print(idek);
+    // print(roadAddress);
+    // print(address);
+    print('fetchAlbum');
 
     return roadAddress;
   }
+
+  Map<String, dynamic> findLocation(roadAddress) {
+    findItems = _items
+        .where((element) =>
+            element['road_addr'].toString().contains(roadAddress[1]))
+        .toList();
+
+    findItems = findItems
+        .where((element) =>
+            element['road_addr'].toString().contains(roadAddress[2]))
+        .toList();
+
+    findItems = findItems
+        .where((element) =>
+            element['road_addr'].toString().contains(roadAddress[3]))
+        .toList();
+
+    print('openDrawerWLocation');
+    return (findItems[0]);
+  }
+
+  late List<String> address;
+  late Map<String, dynamic> location;
 
   Future<List<String>> cameraLocation() async {
     late List<String> adress, find;
@@ -185,7 +176,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> readJson() async {
     //  json파일을 list 로 저장하는 함수.
     final String response =
-        await rootBundle.loadString('assets/images/seoul.json');
+        await rootBundle.loadString('assets/json/seoul.json');
     final data = await json.decode(response);
     setState(() {
       _items = data["items"];
@@ -193,6 +184,7 @@ class _HomePageState extends State<HomePage> {
       print("..첫번째꺼 마 나온나 = ${_items[180000]}");
       print("..이름 마 나온나 = ${_items[180000]['name']}");
     });
+    print('readJson');
   }
 
   void findList() {
@@ -244,9 +236,61 @@ class _HomePageState extends State<HomePage> {
                     mapController = controller;
                     print("네이버 맵 로딩됨!");
                   },
-                  onSymbolTapped: (symbolInfo) => fetchAlbum(
-                      symbolInfo.position.latitude.toString(),
-                      symbolInfo.position.longitude.toString()),
+                  onSymbolTapped: (symbolInfo) async {
+                    address = await fetchAlbum(
+                        symbolInfo.position.latitude.toString(),
+                        symbolInfo.position.longitude.toString());
+                    print(address);
+                    location = findLocation(address);
+                    print(location);
+                    if (!mounted) return;
+                    showModalBottomSheet(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(30),
+                          ),
+                        ),
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SizedBox(
+                            height: 400,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  '${location['name']}',
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  '${location['road_addr']}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                if (location['phone'] != null)
+                                  Text(
+                                    '전화번호 : ${location['phone']}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        });
+                  },
                 )
               : Container(),
           Column(
@@ -278,8 +322,6 @@ class _HomePageState extends State<HomePage> {
                         Get.to(const SearchScreen(),
                             transition: Transition.noTransition);
                         /*------------------------------------------------------------------------------------------*/
-                        // await readJson(); // 디버깅 목적으로 사용하였습니다.
-                        // findList();
 
                         // print("${findItems[0]}");
                         // print("${findItems[600]}");
@@ -421,32 +463,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  // Container cardButton(String cardName) {
-  //   return Container(
-  //     padding: const EdgeInsets.only(right: 6),
-  //     decoration: const BoxDecoration(
-  //       color: Colors.white,
-  //       border: Border(
-  //         top: BorderSide(width: 1, color: Colors.black38),
-  //         bottom: BorderSide(width: 1, color: Colors.black38),
-  //         right: BorderSide(width: 1, color: Colors.black38),
-  //         left: BorderSide(width: 1, color: Colors.black38),
-  //       ),
-  //       borderRadius: BorderRadius.all(
-  //         Radius.circular(15),
-  //       ),
-  //     ),
-  //     child: TextButton(
-  //       onPressed: () {
-  //         selectedCards.add(cardName);
-  //         setState(() {});
-  //       },
-  //       child: Text(cardName),
-  //       //style: const TextStyle(color: Colors.lightGreen),
-  //     ),
-  //   );
-  // }
 }
 // class NaverService {
 //   late NCameraPosition cameraPosition;
