@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cardmap/model/market_model.dart';
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
 import 'package:flutter/material.dart';
@@ -27,11 +28,7 @@ class _HomePageState extends State<HomePage> {
   List shop = []; //가맹점 하나를 저장하는 변수
   late Map<String, dynamic> location;
   late List<String> address; // fetchAddress 실행했을 때 리턴 받는 변수, 주소를 출력한다.
-  late List<Map<String, String>> findCoords;
-
-  final marker = NMarker(
-      id: 'test',
-      position: const NLatLng(36.01979137115008, 129.34156894683838));
+  late List<List> findCoords = [];
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -110,6 +107,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Map<String, dynamic> findShop(List<String> roadAddress) {
+    // 원하는 주소의 가맹점을 가져온다.
     shop = items
         .where((element) =>
             element['road_addr'].toString().contains(roadAddress[1]))
@@ -125,19 +123,14 @@ class _HomePageState extends State<HomePage> {
     print(roadAddress[2]);
     print(shop);
 
-    // shop = shop
-    //     .where((element) =>
-    //         element['road_addr'].toString().contains(roadAddress[3]))
-    //     .toList();
-    // print(roadAddress[3]);
-    // print(shop);
-
     return (shop[0]);
   }
 
   Future<List<String>> cameraLocation() async {
+    // 카메라 위치를 주소로 변환한다.
     late List<String> cameraAddress;
     NCameraPosition cameraPosition = await mapController.getCameraPosition();
+    mapController.clearOverlays();
     final lat = cameraPosition.target.latitude.toString();
     final lon = cameraPosition.target.longitude.toString();
     final zoom = cameraPosition.zoom;
@@ -177,7 +170,8 @@ class _HomePageState extends State<HomePage> {
     // 어떻게 geocode 를 사용할것인가?
     // String endPoint =
     //     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
-    for (int i = 0; i < findItems.length; i++) {
+    print("-------------convertToCoords------------------");
+    for (int i = 0; i < 10; i++) {
       print("$i =${findItems[i]}");
       String lon;
       String lat;
@@ -196,12 +190,105 @@ class _HomePageState extends State<HomePage> {
       } else {
         lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
         lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
+        MarketModel(lon: lon, lat: lat);
         print("convert lon = $lon");
-        print("convert lon = $lat");
-        findCoords.add({"lon": lon, "lat": lat});
-        print("힝힝 $findCoords");
+        print("convert lat = $lat");
+        findCoords.add([lat, lon]);
       }
+      print(findCoords);
     }
+  }
+
+  NAddableOverlay makeOverlay({
+    // marker 하나 생성한다.
+    required NLatLng position,
+    required String id,
+  }) {
+    final overlayId = id;
+
+    final point = position;
+    return NMarker(id: overlayId, position: point);
+  }
+
+  void setMarker(int index) {
+    //marker의 동작을 지정하고, 앱 화면에 띄운다.
+    final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
+        id: '$index',
+        position: NLatLng(double.parse(findCoords[index][0]),
+            double.parse(findCoords[index][1])));
+    overlay.setOnTapListener((overlay) async {
+      final latLng = NLatLng(double.parse(findCoords[index][0]),
+          double.parse(findCoords[index][1]));
+      infoWindow(latLng);
+      // mapController.latLngToScreenLocation(latLng).then(
+      //     (point) => addFlutterFloatingOverlay(point: point, overlay: overlay));
+    });
+    mapController.addOverlay(overlay);
+  }
+
+  void printMarker() {
+    //화면에 띄우는 과정을 findCoords 만큼 반복한다.
+    for (int i = 0; i < 10; i++) {
+      setMarker(i);
+    }
+    //findCoords.clear();
+    //print("과연 ..... $findCoords");
+  }
+
+  void infoWindow(NLatLng position) async {
+    // marker 를 클릭했을 때, 상세 정보를 띄워준다.
+    address = await fetchAddress(
+        position.latitude.toString(), position.longitude.toString());
+    print(address);
+    location = findShop(address);
+    print(location);
+    if (!mounted) return;
+    showModalBottomSheet(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(30),
+          ),
+        ),
+        context: context,
+        builder: (BuildContext context) {
+          return SizedBox(
+            height: 400,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  '${location['name']}',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  '${location['road_addr']}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                if (location['phone'] != null)
+                  Text(
+                    '전화번호 : ${location['phone']}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        });
   }
 
   @override
@@ -229,16 +316,7 @@ class _HomePageState extends State<HomePage> {
                   onMapReady: (controller) async {
                     await readJsonFile(); //가맹점 정보 읽어오기
                     mapController = controller;
-                    controller.addOverlay(marker);
                     print("네이버 맵 로딩됨!");
-                  },
-                  onSymbolTapped: (symbolInfo) async {
-                    address = await fetchAddress(
-                        symbolInfo.position.latitude.toString(),
-                        symbolInfo.position.longitude.toString());
-                    print(address);
-                    location = findShop(address);
-                    print(location);
                   },
                 )
               : Container(),
@@ -271,12 +349,9 @@ class _HomePageState extends State<HomePage> {
                         // Get.to(const SearchScreen(),
                         //     transition: Transition.noTransition);
                         /*------------------------------------------------------------------------------------------*/
-                        await readJsonFile(); // 디버깅 목적으로 사용하였습니다.
                         fetchShopList();
-                        print("${findItems[0]}");
-                        print("${findItems.length}");
                         await convertToCoords();
-                        //print("난 대단하다.${findCoords[0]}");
+                        printMarker();
                       },
                       child: const Text(
                         "search",
