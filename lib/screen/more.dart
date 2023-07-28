@@ -92,10 +92,14 @@ class _MorePageState extends State<MorePage> {
                 ),
               ),
               for (int i = 0;
-                  i < (context.watch<SelectedCard>().finalSelectedCard.length);
+                  i <
+                      (context
+                          .watch<SelectedCard>()
+                          .theFinalSelectedCard
+                          .length);
                   i++)
                 cardList(
-                    "${context.watch<SelectedCard>().finalSelectedCard[i]}"),
+                    "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
               const SizedBox(
                 height: 20,
               ),

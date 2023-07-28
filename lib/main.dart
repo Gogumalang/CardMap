@@ -23,7 +23,9 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(MultiProvider(providers: [
-    ChangeNotifierProvider<SelectedCard>(create: (_) => SelectedCard())
+    ChangeNotifierProvider(
+        create: (_) =>
+            SelectedCard(theFinalSelectedCard: List.empty(growable: true)))
   ], child: const MyApp()));
   //parkseyoung babo
   //ahnseoyoung 1004

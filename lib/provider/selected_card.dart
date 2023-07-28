@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class SelectedCard with ChangeNotifier {
-  List _finalSelectedCard = List.empty(growable: true);
-  List get finalSelectedCard => _finalSelectedCard;
+  List theFinalSelectedCard;
+
+  SelectedCard({required this.theFinalSelectedCard});
 
   void updateCardList(List finalSelectedCard) {
-    _finalSelectedCard = finalSelectedCard;
+    theFinalSelectedCard = finalSelectedCard;
     notifyListeners();
   }
 }
