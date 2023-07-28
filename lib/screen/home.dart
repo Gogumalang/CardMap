@@ -28,7 +28,8 @@ class _HomePageState extends State<HomePage> {
   List shop = []; //가맹점 하나를 저장하는 변수
   late Map<String, dynamic> location;
   late List<String> address; // fetchAddress 실행했을 때 리턴 받는 변수, 주소를 출력한다.
-  late List<List> findCoords = [];
+  // List<Map<String, dynamic>> findCoords = [];
+  List<MarketModel> findCoords = [];
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -146,7 +147,7 @@ class _HomePageState extends State<HomePage> {
         await rootBundle.loadString('assets/json/seoul.json');
     final data = await json.decode(response);
     setState(() {
-      items = data["items"];
+      items = data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
       print("..number = ${items.length}");
     });
     print('readJsonFile');
@@ -172,6 +173,7 @@ class _HomePageState extends State<HomePage> {
     //     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
     print("-------------convertToCoords------------------");
     for (int i = 0; i < 10; i++) {
+      MarketModel find = MarketModel();
       print("$i =${findItems[i]}");
       String lon;
       String lat;
@@ -184,18 +186,26 @@ class _HomePageState extends State<HomePage> {
           headers: headerss);
 
       jsonCoords = responseGeocode.body;
-      print("Im json $jsonCoords");
+      //print("Im json $jsonCoords");
       if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
         print("메롱~ ");
       } else {
         lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
         lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
-        MarketModel(lon: lon, lat: lat);
+        find = MarketModel(lat: lat, lon: lon);
+        find.fromJson(findItems[i]);
+        print(find.name);
+        print(find.lon);
+        // find['name'] = findItems[i]['name'];
+        // find['road_addr'] = findItems[i]['road_addr'];
+        // find['addr'] = findItems[i]?['addr'];
+        // find['phone'] = findItems[i]?['phone'];
+        // findItems[i].putIfAbsent('lon', () => lon);
+        // findItems[i].putIfAbsent('lat', () => lat);
         print("convert lon = $lon");
         print("convert lat = $lat");
-        findCoords.add([lat, lon]);
+        findCoords.add(find);
       }
-      print(findCoords);
     }
   }
 
@@ -214,12 +224,12 @@ class _HomePageState extends State<HomePage> {
     //marker의 동작을 지정하고, 앱 화면에 띄운다.
     final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
         id: '$index',
-        position: NLatLng(double.parse(findCoords[index][0]),
-            double.parse(findCoords[index][1])));
+        position: NLatLng(double.parse(findCoords[index].lat!),
+            double.parse(findCoords[index].lon!)));
     overlay.setOnTapListener((overlay) async {
-      final latLng = NLatLng(double.parse(findCoords[index][0]),
-          double.parse(findCoords[index][1]));
-      infoWindow(latLng);
+      final latLng = NLatLng(double.parse(findCoords[index].lat!),
+          double.parse(findCoords[index].lon!));
+      infoWindow(index);
       // mapController.latLngToScreenLocation(latLng).then(
       //     (point) => addFlutterFloatingOverlay(point: point, overlay: overlay));
     });
@@ -235,13 +245,13 @@ class _HomePageState extends State<HomePage> {
     //print("과연 ..... $findCoords");
   }
 
-  void infoWindow(NLatLng position) async {
+  void infoWindow(int index) async {
     // marker 를 클릭했을 때, 상세 정보를 띄워준다.
-    address = await fetchAddress(
-        position.latitude.toString(), position.longitude.toString());
-    print(address);
-    location = findShop(address);
-    print(location);
+    // address = await fetchAddress(
+    //     position.latitude.toString(), position.longitude.toString());
+    // print(address);
+    // location = findShop(address);
+    // print(location);
     if (!mounted) return;
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -260,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                   height: 20,
                 ),
                 Text(
-                  '${location['name']}',
+                  '${findCoords[index].name}',
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
@@ -270,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                   height: 10,
                 ),
                 Text(
-                  '${location['road_addr']}',
+                  '${findCoords[index].road_addr}',
                   style: const TextStyle(
                     fontSize: 18,
                   ),
@@ -278,9 +288,9 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(
                   height: 10,
                 ),
-                if (location['phone'] != null)
+                if (findCoords[index].phone != null)
                   Text(
-                    '전화번호 : ${location['phone']}',
+                    '전화번호 : ${findCoords[index].phone}',
                     style: const TextStyle(
                       fontSize: 18,
                     ),
