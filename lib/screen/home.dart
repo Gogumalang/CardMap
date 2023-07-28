@@ -394,25 +394,27 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 6,
               ),
-              SingleChildScrollView(
-                //카드 스크롤
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
+              SizedBox(
+                height: 29,
+                width: 420,
+                child: ListView(
+                  //카드 스크롤
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     for (int i = 0;
                         i <
                             (context
                                 .watch<SelectedCard>()
-                                .finalSelectedCard
+                                .theFinalSelectedCard
                                 .length);
                         i++)
                       if (selectedCardsIndex[i] == '0')
                         cardButton(
-                            "${context.watch<SelectedCard>().finalSelectedCard[i]}")
+                            "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
                       else
                         cardButton10(
-                            "${context.watch<SelectedCard>().finalSelectedCard[i]}"),
+                            "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
                   ],
                 ),
               ),
@@ -425,11 +427,11 @@ class _HomePageState extends State<HomePage> {
 
   void setCards(BuildContext context) {
     for (int i = 0;
-        i < (context.watch<SelectedCard>().finalSelectedCard.length);
+        i < (Provider.of<SelectedCard>(context).theFinalSelectedCard.length);
         i++) {
       clickedChecked = false;
       for (int j = 0; j < selectedCards.length; j++) {
-        if (context.watch<SelectedCard>().finalSelectedCard[i] ==
+        if (Provider.of<SelectedCard>(context).theFinalSelectedCard[i] ==
             selectedCards[j]) {
           clickedChecked = true;
           break;
