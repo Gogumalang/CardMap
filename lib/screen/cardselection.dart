@@ -14,8 +14,6 @@ class _CardSelectionState extends State<CardSelection> {
   String pClicked = '서울';
   String cClicked = '전체';
   String cardClicked = '';
-  late List clickedCardList = context.watch<SelectedCard>().finalSelectedCard;
-  List clickedCardListFinal = [];
 
   final provinceList = [
     '서울',
@@ -281,6 +279,15 @@ class _CardSelectionState extends State<CardSelection> {
 
   @override
   Widget build(BuildContext context) {
+    print(Provider.of<SelectedCard>(context).theFinalSelectedCard);
+
+    List clickedCardList =
+        Provider.of<SelectedCard>(context).theFinalSelectedCard;
+
+    List clickedCardListFinal = [];
+    print(clickedCardList);
+    print(clickedCardListFinal);
+
     for (int h = 0; h < clickedCardList.length; h++) {
       for (int i = 0; i < provinceList.length; i++) {
         if (provinceList[i] == clickedCardList[h].substring(1, 3)) {
@@ -573,6 +580,8 @@ class _CardSelectionState extends State<CardSelection> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {
+            //context.read<SelectedCard>().updateCardList(temporary);
+            //setState(() {});
             Get.back();
           },
         ),
@@ -752,8 +761,7 @@ class _CardSelectionState extends State<CardSelection> {
                   //     }
                   //   }
                   // }
-                  context
-                      .read<SelectedCard>()
+                  Provider.of<SelectedCard>(context, listen: false)
                       .updateCardList(clickedCardListFinal);
 
                   //clickedCardList.clear();
