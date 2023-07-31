@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
     print('readJsonFile');
   }
 
-  void fetchShopList() async {
+  Future<void> fetchShopList() async {
     // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
     List<String> findlist = await cameraLocation();
     findItems = items
@@ -227,18 +227,14 @@ class _HomePageState extends State<HomePage> {
         position: NLatLng(double.parse(findCoords[index].lat!),
             double.parse(findCoords[index].lon!)));
     overlay.setOnTapListener((overlay) async {
-      final latLng = NLatLng(double.parse(findCoords[index].lat!),
-          double.parse(findCoords[index].lon!));
       infoWindow(index);
-      // mapController.latLngToScreenLocation(latLng).then(
-      //     (point) => addFlutterFloatingOverlay(point: point, overlay: overlay));
     });
     mapController.addOverlay(overlay);
   }
 
   void printMarker() {
     //화면에 띄우는 과정을 findCoords 만큼 반복한다.
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < findCoords.length; i++) {
       setMarker(i);
     }
     //findCoords.clear();
@@ -359,7 +355,7 @@ class _HomePageState extends State<HomePage> {
                         // Get.to(const SearchScreen(),
                         //     transition: Transition.noTransition);
                         /*------------------------------------------------------------------------------------------*/
-                        fetchShopList();
+                        await fetchShopList();
                         await convertToCoords();
                         printMarker();
                       },
