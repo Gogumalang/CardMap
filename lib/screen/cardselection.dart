@@ -1,4 +1,5 @@
 import 'package:cardmap/provider/selected_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -276,6 +277,21 @@ class _CardSelectionState extends State<CardSelection> {
       [0, 0, 0],
     ],
   ];
+
+  Future<void> saveUserCards() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    print('middle');
+    await firestore
+        .collection("cars")
+        .doc("123456789")
+        .collection("options")
+        .doc()
+        .set({
+      "navigation": true,
+      "color": "black",
+    });
+    print("idek");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -766,6 +782,7 @@ class _CardSelectionState extends State<CardSelection> {
 
                   //clickedCardList.clear();
                   setState(() {});
+                  saveUserCards();
 
                   Get.back();
                 },

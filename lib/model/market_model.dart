@@ -5,7 +5,7 @@ class MarketModel {
     this.lon,
   });
   void fromJson(Map<String, dynamic> json) {
-    name = json['name'];
+    name = json['name']; //type error
     road_addr = json['road_addr'];
     addr = json["addr"];
     phone = json['number'];
