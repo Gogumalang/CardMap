@@ -20,9 +20,10 @@ class _HomePageState extends State<HomePage> {
   late NCameraPosition initCameraPosition;
   final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
-  List selectedCards = [];
-  List selectedCardsIndex = [];
-  bool clickedChecked = false;
+  // List selectedCards = [];
+  // List selectedCardsIndex = [];
+  // bool clickedChecked = false;
+  String selectedCard = '';
   List items = [];
   List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
   List shop = []; //가맹점 하나를 저장하는 변수
@@ -30,6 +31,8 @@ class _HomePageState extends State<HomePage> {
   late List<String> address; // fetchAddress 실행했을 때 리턴 받는 변수, 주소를 출력한다.
   // List<Map<String, dynamic>> findCoords = [];
   List<MarketModel> findCoords = [];
+  late String typeOfAddress;
+  late String? addressCheck;
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -100,32 +103,47 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
-    print(jsonRoadAddressData);
-    print("roadAddr = $roadAddress");
-    print("addr = $address");
+    addressCheck = items[0]['road_addr'];
+    if (addressCheck == null) {
+      typeOfAddress = 'addr';
+      // findItems = items
+      //     .where((element) =>
+      //         element[typeOfAddress].toString().contains(address[1]))
+      //     .toList();
+      return address;
+    } else {
+      typeOfAddress = 'road_addr';
+      // findItems = items
+      //     .where((element) =>
+      //         element[typeOfAddress].toString().contains(roadAddress[1]))
+      //     .toList();
+      return roadAddress;
+    }
 
-    return roadAddress;
+    // print(jsonRoadAddressData);
+    // print("roadAddr = $roadAddress");
+    // print("addr = $address");
   }
 
-  Map<String, dynamic> findShop(List<String> roadAddress) {
-    // 원하는 주소의 가맹점을 가져온다.
-    shop = items
-        .where((element) =>
-            element['road_addr'].toString().contains(roadAddress[1]))
-        .toList();
-    print(roadAddress[1]);
-    print(shop);
+  // Map<String, dynamic> findShop(List<String> roadAddress) {
+  //   // 원하는 주소의 가맹점을 가져온다.
+  //   shop = items
+  //       .where((element) =>
+  //           element['road_addr'].toString().contains(roadAddress[1]))
+  //       .toList();
+  //   print(roadAddress[1]);
+  //   print(shop);
 
-    shop = shop
-        .where((element) => element['road_addr']
-            .toString()
-            .contains('${roadAddress[2]} ${roadAddress[3]}'))
-        .toList();
-    print(roadAddress[2]);
-    print(shop);
+  //   shop = shop
+  //       .where((element) => element['road_addr']
+  //           .toString()
+  //           .contains('${roadAddress[2]} ${roadAddress[3]}'))
+  //       .toList();
+  //   print(roadAddress[2]);
+  //   print(shop);
 
-    return (shop[0]);
-  }
+  //   return (shop[0]);
+  // }
 
   Future<List<String>> cameraLocation() async {
     // 카메라 위치를 주소로 변환한다.
@@ -157,8 +175,8 @@ class _HomePageState extends State<HomePage> {
     // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
     List<String> findlist = await cameraLocation();
     findItems = items
-        .where(
-            (element) => element['road_addr'].toString().contains(findlist[2]))
+        .where((element) =>
+            element[typeOfAddress].toString().contains(findlist[2]))
         .toList();
   }
 
@@ -174,11 +192,11 @@ class _HomePageState extends State<HomePage> {
     print("-------------convertToCoords------------------");
     for (int i = 0; i < 10; i++) {
       MarketModel find = MarketModel();
-      print("$i =${findItems[i]}");
+      //print("$i =${findItems[i]}");
       String lon;
       String lat;
       String jsonCoords;
-      String query = findItems[i]['road_addr'];
+      String query = findItems[i][typeOfAddress];
       http.Response responseGeocode;
       responseGeocode = await http.get(
           Uri.parse(
@@ -217,7 +235,10 @@ class _HomePageState extends State<HomePage> {
     final overlayId = id;
 
     final point = position;
-    return NMarker(id: overlayId, position: point);
+    return NMarker(
+      id: overlayId,
+      position: point,
+    );
   }
 
   void setMarker(int index) {
@@ -299,7 +320,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    setCards(context);
+    //setCards(context);
 
     return Scaffold(
       key: _key, //drawer
@@ -410,16 +431,22 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     for (int i = 0;
                         i <
-                            (context
-                                .watch<SelectedCard>()
+                            (Provider.of<SelectedCard>(context)
                                 .theFinalSelectedCard
                                 .length);
                         i++)
-                      if (selectedCardsIndex[i] == '0')
-                        cardButton(
+                      // if (selectedCardsIndex[i] == '0')
+                      //   cardButton(
+                      //       "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
+                      // else
+                      //   cardButton10(
+                      //       "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
+                      if (selectedCard ==
+                          "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
+                        cardButton10(
                             "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
                       else
-                        cardButton10(
+                        cardButton(
                             "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
                   ],
                 ),
@@ -431,25 +458,25 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void setCards(BuildContext context) {
-    for (int i = 0;
-        i < (Provider.of<SelectedCard>(context).theFinalSelectedCard.length);
-        i++) {
-      clickedChecked = false;
-      for (int j = 0; j < selectedCards.length; j++) {
-        if (Provider.of<SelectedCard>(context).theFinalSelectedCard[i] ==
-            selectedCards[j]) {
-          clickedChecked = true;
-          break;
-        }
-      }
-      if (clickedChecked == true) {
-        selectedCardsIndex.add('1');
-      } else {
-        selectedCardsIndex.add('0');
-      }
-    }
-  }
+  // void setCards(BuildContext context) {
+  //   for (int i = 0;
+  //       i < (Provider.of<SelectedCard>(context).theFinalSelectedCard.length);
+  //       i++) {
+  //     clickedChecked = false;
+  //     for (int j = 0; j < selectedCards.length; j++) {
+  //       if (Provider.of<SelectedCard>(context).theFinalSelectedCard[i] ==
+  //           selectedCards[j]) {
+  //         clickedChecked = true;
+  //         break;
+  //       }
+  //     }
+  //     if (clickedChecked == true) {
+  //       selectedCardsIndex.add('1');
+  //     } else {
+  //       selectedCardsIndex.add('0');
+  //     }
+  //   }
+  // }
 
   Padding cardButton(String cardName) {
     return Padding(
@@ -476,8 +503,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onTap: () {
-          selectedCardsIndex = [];
-          selectedCards.add(cardName);
+          // selectedCardsIndex = [];
+          // selectedCards.add(cardName);
+          selectedCard = cardName;
           setState(() {});
         },
       ),
@@ -510,8 +538,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onTap: () {
-          selectedCardsIndex = [];
-          selectedCards.remove(cardName);
+          // selectedCardsIndex = [];
+          // selectedCards.remove(cardName);
+          selectedCard = '';
           setState(() {});
         },
       ),
