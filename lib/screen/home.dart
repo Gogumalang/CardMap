@@ -178,6 +178,7 @@ class _HomePageState extends State<HomePage> {
         .where((element) =>
             element[typeOfAddress].toString().contains(findlist[2]))
         .toList();
+    print("Fetch start!");
   }
 
   Future<void> convertToCoords() async {
@@ -190,39 +191,71 @@ class _HomePageState extends State<HomePage> {
     // String endPoint =
     //     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
     print("-------------convertToCoords------------------");
-    for (int i = 0; i < 10; i++) {
-      MarketModel find = MarketModel();
-      //print("$i =${findItems[i]}");
-      String lon;
-      String lat;
-      String jsonCoords;
-      String query = findItems[i][typeOfAddress];
-      http.Response responseGeocode;
-      responseGeocode = await http.get(
-          Uri.parse(
-              'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=$query'),
-          headers: headerss);
+    if (findItems.length > 10) {
+      for (int i = 0; i < 10; i++) {
+        MarketModel find = MarketModel();
+        //print("$i =${findItems[i]}"); //RangeError
+        String lon;
+        String lat;
+        String jsonCoords;
+        String query = findItems[i]['road_addr']; //range error
 
-      jsonCoords = responseGeocode.body;
-      //print("Im json $jsonCoords");
-      if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
-        print("메롱~ ");
-      } else {
-        lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
-        lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
-        find = MarketModel(lat: lat, lon: lon);
-        find.fromJson(findItems[i]);
-        print(find.name);
-        print(find.lon);
-        // find['name'] = findItems[i]['name'];
-        // find['road_addr'] = findItems[i]['road_addr'];
-        // find['addr'] = findItems[i]?['addr'];
-        // find['phone'] = findItems[i]?['phone'];
-        // findItems[i].putIfAbsent('lon', () => lon);
-        // findItems[i].putIfAbsent('lat', () => lat);
-        print("convert lon = $lon");
-        print("convert lat = $lat");
-        findCoords.add(find);
+        http.Response responseGeocode;
+        responseGeocode = await http.get(
+            Uri.parse(
+                'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=$query'),
+            headers: headerss);
+
+        jsonCoords = responseGeocode.body;
+        //print("Im json $jsonCoords");
+        if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
+          print("메롱~ ");
+        } else {
+          lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
+          lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
+          find = MarketModel(lat: lat, lon: lon);
+          find.fromJson(findItems[i]);
+          print(find.name);
+          print(find.lon);
+          print("convert lon = $lon");
+          print("convert lat = $lat");
+          findCoords.add(find);
+          print("convertToCoods");
+          print(find);
+        }
+      }
+    } else {
+      for (int i = 0; i < findItems.length; i++) {
+        MarketModel find = MarketModel();
+        //print("$i =${findItems[i]}"); //RangeError
+        String lon;
+        String lat;
+        String jsonCoords;
+        String query = findItems[i]['road_addr']; //range error
+
+        http.Response responseGeocode;
+        responseGeocode = await http.get(
+            Uri.parse(
+                'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=$query'),
+            headers: headerss);
+
+        jsonCoords = responseGeocode.body;
+        //print("Im json $jsonCoords");
+        if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
+          print("메롱~ ");
+        } else {
+          lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
+          lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
+          find = MarketModel(lat: lat, lon: lon);
+          find.fromJson(findItems[i]);
+          print(find.name);
+          print(find.lon);
+          print("convert lon = $lon");
+          print("convert lat = $lat");
+          findCoords.add(find);
+          print("convertToCoods");
+          print(find);
+        }
       }
     }
   }
@@ -233,12 +266,16 @@ class _HomePageState extends State<HomePage> {
     required String id,
   }) {
     final overlayId = id;
-
     final point = position;
     return NMarker(
-      id: overlayId,
-      position: point,
-    );
+        id: overlayId,
+        position: point,
+        icon:
+            const NOverlayImage.fromAssetImage('assets/images/CardmapLogo.png'),
+        size: const Size(50, 50),
+        isHideCollidedMarkers: true,
+        isHideCollidedSymbols: true);
+    //return NMarker(id: overlayId, position: point);
   }
 
   void setMarker(int index) {
@@ -247,19 +284,28 @@ class _HomePageState extends State<HomePage> {
         id: '$index',
         position: NLatLng(double.parse(findCoords[index].lat!),
             double.parse(findCoords[index].lon!)));
+    print("test2");
+
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
     });
     mapController.addOverlay(overlay);
   }
 
+  // void onMapReady(NaverMap naverMap) {
+  //   NaverMap = naverMap;
+
+  // }
+
   void printMarker() {
     //화면에 띄우는 과정을 findCoords 만큼 반복한다.
+    print("printMarker start !");
     for (int i = 0; i < findCoords.length; i++) {
       setMarker(i);
     }
     //findCoords.clear();
     //print("과연 ..... $findCoords");
+    print("PM fin.");
   }
 
   void infoWindow(int index) async {
@@ -342,7 +388,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onMapReady: (controller) async {
                     await readJsonFile(); //가맹점 정보 읽어오기
+
                     mapController = controller;
+
                     print("네이버 맵 로딩됨!");
                   },
                 )
