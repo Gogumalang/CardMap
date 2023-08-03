@@ -1,5 +1,6 @@
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -279,16 +280,12 @@ class _CardSelectionState extends State<CardSelection> {
   ];
 
   Future<void> saveUserCards() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    print('middle');
-    await firestore
-        .collection("cars")
-        .doc("123456789")
-        .collection("options")
-        .doc()
-        .set({
-      "navigation": true,
-      "color": "black",
+    print('start');
+
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance.collection("users").doc(user.email!).set({
+      "cardlist": Provider.of<SelectedCard>(context, listen: false)
+          .theFinalSelectedCard,
     });
     print("idek");
   }
@@ -304,27 +301,7 @@ class _CardSelectionState extends State<CardSelection> {
     print(clickedCardList);
     print(clickedCardListFinal);
 
-    for (int h = 0; h < clickedCardList.length; h++) {
-      for (int i = 0; i < provinceList.length; i++) {
-        if (provinceList[i] == clickedCardList[h].substring(1, 3)) {
-          for (int k = 0; k < cardList[i][0].length; k++) {
-            if (cardList[i][0][k] == clickedCardList[h].substring(5)) {
-              cardListIndex[i][0][k] = 1;
-            }
-          }
-        } else {
-          for (int j = 0; j < cityList[i].length; j++) {
-            if (cityList[i][j] == clickedCardList[h].substring(1, 3)) {
-              for (int k = 0; k < cardList[i][j].length; k++) {
-                if (cardList[i][j][k] == clickedCardList[h].substring(5)) {
-                  cardListIndex[i][j][k] = 1;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    refreshCardListIndex(clickedCardList);
     container1(String location) {
       return Container(
         width: 91,
@@ -834,5 +811,29 @@ class _CardSelectionState extends State<CardSelection> {
         ],
       ),
     );
+  }
+
+  void refreshCardListIndex(List<dynamic> clickedCardList) {
+    for (int h = 0; h < clickedCardList.length; h++) {
+      for (int i = 0; i < provinceList.length; i++) {
+        if (provinceList[i] == clickedCardList[h].substring(1, 3)) {
+          for (int k = 0; k < cardList[i][0].length; k++) {
+            if (cardList[i][0][k] == clickedCardList[h].substring(5)) {
+              cardListIndex[i][0][k] = 1;
+            }
+          }
+        } else {
+          for (int j = 0; j < cityList[i].length; j++) {
+            if (cityList[i][j] == clickedCardList[h].substring(1, 3)) {
+              for (int k = 0; k < cardList[i][j].length; k++) {
+                if (cardList[i][j][k] == clickedCardList[h].substring(5)) {
+                  cardListIndex[i][j][k] = 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
