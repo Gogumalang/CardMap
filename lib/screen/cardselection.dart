@@ -16,6 +16,9 @@ class _CardSelectionState extends State<CardSelection> {
   String pClicked = '서울';
   String cClicked = '전체';
   String cardClicked = '';
+  List<dynamic> theCardList = [];
+  List clickedCardList = [];
+  List clickedCardListFinal = [];
 
   final provinceList = [
     '서울',
@@ -290,17 +293,27 @@ class _CardSelectionState extends State<CardSelection> {
     print("idek");
   }
 
+  Future getCardList() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email!)
+        .get()
+        .then((snapshot) {
+      theCardList = snapshot.get('cardlist');
+    });
+    clickedCardList = theCardList;
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getCardList();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(Provider.of<SelectedCard>(context).theFinalSelectedCard);
-
-    List clickedCardList =
-        Provider.of<SelectedCard>(context).theFinalSelectedCard;
-
-    List clickedCardListFinal = [];
-    print(clickedCardList);
-    print(clickedCardListFinal);
-
     refreshCardListIndex(clickedCardList);
     container1(String location) {
       return Container(
@@ -746,21 +759,12 @@ class _CardSelectionState extends State<CardSelection> {
                 onPressed: () {
                   clickedCardListFinal = clickedCardList;
 
-                  // for (int i = 0; i < provinceList.length; i++) {
-                  //   for (int j = 0; j < cityList[i].length; j++) {
-                  //     for (int k = 0; k < cardList[i][j].length; k++) {
-                  //       cardListIndex[i][j][k] = 0;
-                  //       container3(cardList[i][j][k]);
-                  //     }
-                  //   }
-                  // }
                   Provider.of<SelectedCard>(context, listen: false)
                       .updateCardList(clickedCardListFinal);
 
                   //clickedCardList.clear();
                   setState(() {});
                   saveUserCards();
-
                   Get.back();
                 },
                 child: const Text(

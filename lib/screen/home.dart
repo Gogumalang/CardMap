@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:cardmap/model/market_model.dart';
-import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   List<MarketModel> findCoords = [];
   late String typeOfAddress;
   late String? addressCheck;
+  List<dynamic> theCardList = [];
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -364,9 +365,22 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
+  Future getCardList() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email!)
+        .get()
+        .then((snapshot) {
+      theCardList = snapshot.get('cardlist');
+    });
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     //setCards(context);
+    getCardList();
 
     return Scaffold(
       key: _key, //drawer
@@ -477,25 +491,17 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
-                    for (int i = 0;
-                        i <
-                            (Provider.of<SelectedCard>(context)
-                                .theFinalSelectedCard
-                                .length);
-                        i++)
+                    for (int i = 0; i < (theCardList.length); i++)
                       // if (selectedCardsIndex[i] == '0')
                       //   cardButton(
                       //       "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
                       // else
                       //   cardButton10(
                       //       "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
-                      if (selectedCard ==
-                          "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
-                        cardButton10(
-                            "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
+                      if (selectedCard == "${theCardList[i]}")
+                        cardButton10("${theCardList[i]}")
                       else
-                        cardButton(
-                            "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
+                        cardButton("${theCardList[i]}"),
                   ],
                 ),
               ),
