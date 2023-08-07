@@ -284,18 +284,39 @@ class _HomePageState extends State<HomePage> {
         id: '$index',
         position: NLatLng(double.parse(findCoords[index].lat!),
             double.parse(findCoords[index].lon!)));
-    print("test2");
 
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
+      changeOverlay(
+          position: NLatLng(double.parse(findCoords[index].lat!),
+              double.parse(findCoords[index].lon!)),
+          id: "$index");
+      // changeOverlay(
+      //     id: '$index',
+      //     position: NLatLng(double.parse(findCoords[index].lat!),
+      //         double.parse(findCoords[index].lon!)));
+      print("change overlay");
     });
+
     mapController.addOverlay(overlay);
   }
 
-  // void onMapReady(NaverMap naverMap) {
-  //   NaverMap = naverMap;
-
-  // }
+  NAddableOverlay changeOverlay({
+    // marker 클릭 시 marker의 UI 변경
+    required NLatLng position,
+    required String id,
+  }) {
+    final overlayId = id;
+    final point = position;
+    return NMarker(
+        id: overlayId,
+        position: point,
+        icon: const NOverlayImage.fromAssetImage('assets/images/hamzzi.jpeg'),
+        size: const Size(200, 200),
+        isHideCollidedMarkers: true,
+        isHideCollidedSymbols: true);
+    //return NMarker(id: overlayId, position: point);
+  }
 
   void printMarker() {
     //화면에 띄우는 과정을 findCoords 만큼 반복한다.
@@ -310,11 +331,6 @@ class _HomePageState extends State<HomePage> {
 
   void infoWindow(int index) async {
     // marker 를 클릭했을 때, 상세 정보를 띄워준다.
-    // address = await fetchAddress(
-    //     position.latitude.toString(), position.longitude.toString());
-    // print(address);
-    // location = findShop(address);
-    // print(location);
     if (!mounted) return;
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -330,7 +346,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 20,
+                  height: 40,
                 ),
                 Text(
                   '${findCoords[index].name}',
