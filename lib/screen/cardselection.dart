@@ -80,7 +80,7 @@ class _CardSelectionState extends State<CardSelection> {
 
   final cardList = [
     [
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '서울 사랑 상품권'],
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
@@ -422,11 +422,7 @@ class _CardSelectionState extends State<CardSelection> {
         child: TextButton(
           onPressed: () {
             cardClicked = location;
-            if (cClicked == '전체') {
-              clickedCardList.add("($pClicked) $location");
-            } else {
-              clickedCardList.add("($cClicked) $location");
-            }
+            clickedCardList.add(location);
             for (int i = 0; i < provinceList.length; i++) {
               if (provinceList[i] == pClicked) {
                 for (int j = 0; j < cityList[i].length; j++) {
@@ -443,7 +439,7 @@ class _CardSelectionState extends State<CardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -473,11 +469,7 @@ class _CardSelectionState extends State<CardSelection> {
         ),
         child: TextButton(
           onPressed: () {
-            if (cClicked == '전체') {
-              clickedCardList.remove("($pClicked) $location");
-            } else {
-              clickedCardList.remove("($cClicked) $location");
-            }
+            clickedCardList.remove(location);
             for (int i = 0; i < provinceList.length; i++) {
               if (provinceList[i] == pClicked) {
                 for (int j = 0; j < cityList[i].length; j++) {
@@ -494,7 +486,7 @@ class _CardSelectionState extends State<CardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -545,20 +537,10 @@ class _CardSelectionState extends State<CardSelection> {
                   onPressed: () {
                     clickedCardList.remove(location);
                     for (int i = 0; i < provinceList.length; i++) {
-                      if (provinceList[i] == location.substring(1, 3)) {
-                        for (int k = 0; k < cardList[i][0].length; k++) {
-                          if (cardList[i][0][k] == location.substring(5)) {
-                            cardListIndex[i][0][k] = 0;
-                          }
-                        }
-                      } else {
-                        for (int j = 0; j < cityList[i].length; j++) {
-                          if (cityList[i][j] == location.substring(1, 3)) {
-                            for (int k = 0; k < cardList[i][j].length; k++) {
-                              if (cardList[i][j][k] == location.substring(5)) {
-                                cardListIndex[i][j][k] = 0;
-                              }
-                            }
+                      for (int j = 0; j < cityList[i].length; j++) {
+                        for (int k = 0; k < cardList[i][j].length; k++) {
+                          if (cardList[i][j][k] == location) {
+                            cardListIndex[i][j][k] = 0;
                           }
                         }
                       }
@@ -762,7 +744,6 @@ class _CardSelectionState extends State<CardSelection> {
                   Provider.of<SelectedCard>(context, listen: false)
                       .updateCardList(clickedCardListFinal);
 
-                  //clickedCardList.clear();
                   setState(() {});
                   saveUserCards();
                   Get.back();
@@ -820,20 +801,10 @@ class _CardSelectionState extends State<CardSelection> {
   void refreshCardListIndex(List<dynamic> clickedCardList) {
     for (int h = 0; h < clickedCardList.length; h++) {
       for (int i = 0; i < provinceList.length; i++) {
-        if (provinceList[i] == clickedCardList[h].substring(1, 3)) {
-          for (int k = 0; k < cardList[i][0].length; k++) {
-            if (cardList[i][0][k] == clickedCardList[h].substring(5)) {
-              cardListIndex[i][0][k] = 1;
-            }
-          }
-        } else {
-          for (int j = 0; j < cityList[i].length; j++) {
-            if (cityList[i][j] == clickedCardList[h].substring(1, 3)) {
-              for (int k = 0; k < cardList[i][j].length; k++) {
-                if (cardList[i][j][k] == clickedCardList[h].substring(5)) {
-                  cardListIndex[i][j][k] = 1;
-                }
-              }
+        for (int j = 0; j < cityList[i].length; j++) {
+          for (int k = 0; k < cardList[i][j].length; k++) {
+            if (cardList[i][j][k] == clickedCardList[h]) {
+              cardListIndex[i][j][k] = 1;
             }
           }
         }
