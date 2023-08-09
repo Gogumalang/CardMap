@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:cardmap/model/market_model.dart';
 import 'package:cardmap/screen/more.dart';
+import 'package:cardmap/screen/search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
@@ -20,11 +22,8 @@ class _HomePageState extends State<HomePage> {
   late NCameraPosition initCameraPosition;
   final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
-  // List selectedCards = [];
-  // List selectedCardsIndex = [];
-  // bool clickedChecked = false;
   String selectedCard = '';
-  List items = [];
+  List<List<dynamic>> items = [[]];
   List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
   List shop = []; //가맹점 하나를 저장하는 변수
   late Map<String, dynamic> location;
@@ -34,6 +33,8 @@ class _HomePageState extends State<HomePage> {
   late String typeOfAddress;
   late String? addressCheck;
   List<dynamic> theCardList = [];
+  int clickedCardIndex = 0;
+  String hi = 'seoul';
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -104,26 +105,14 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
-    addressCheck = items[0]['road_addr'];
+    addressCheck = items[0][clickedCardIndex]['road_addr'];
     if (addressCheck == null) {
       typeOfAddress = 'addr';
-      // findItems = items
-      //     .where((element) =>
-      //         element[typeOfAddress].toString().contains(address[1]))
-      //     .toList();
       return address;
     } else {
       typeOfAddress = 'road_addr';
-      // findItems = items
-      //     .where((element) =>
-      //         element[typeOfAddress].toString().contains(roadAddress[1]))
-      //     .toList();
       return roadAddress;
     }
-
-    // print(jsonRoadAddressData);
-    // print("roadAddr = $roadAddress");
-    // print("addr = $address");
   }
 
   // Map<String, dynamic> findShop(List<String> roadAddress) {
@@ -162,20 +151,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> readJsonFile() async {
-    final String response =
-        await rootBundle.loadString('assets/json/seoul.json');
-    final data = await json.decode(response);
-    setState(() {
-      items = data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
-      print("..number = ${items.length}");
-    });
-    print('readJsonFile');
+    await getCardList();
+    for (var i = 0; i < theCardList.length; i++) {
+      final String response =
+          await rootBundle.loadString('assets/json/${theCardList[i]}.json');
+      final data = await json.decode(response);
+      setState(() {
+        items[i] = data[
+            "${theCardList[i]}"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+        print("..number = ${items[i].length}");
+      });
+    }
   }
 
   Future<void> fetchShopList() async {
     // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
+    print('fetch shop list start');
     List<String> findlist = await cameraLocation();
-    findItems = items
+    findItems = items[clickedCardIndex]
         .where((element) =>
             element[typeOfAddress].toString().contains(findlist[2]))
         .toList();
@@ -183,14 +176,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> convertToCoords() async {
-    /*------------------------- geocode 활용하기 ------------------------- */
-    // 해당되는 주소를 저장한 리스트를 가지고
-    // 하나씩 geocode를 통해 좌표를 받아온다.
-    // 좌표를 가지고 변환하여 그 자리에 마커를 표시한다.
-
-    // 어떻게 geocode 를 사용할것인가?
-    // String endPoint =
-    //     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
     print("-------------convertToCoords------------------");
     if (findItems.length > 10) {
       for (int i = 0; i < 10; i++) {
@@ -395,8 +380,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    //setCards(context);
-    getCardList();
+    setState(() {
+      getCardList();
+    });
 
     return Scaffold(
       key: _key, //drawer
@@ -451,12 +437,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        // Get.to(const SearchScreen(),
-                        //     transition: Transition.noTransition);
-                        /*------------------------------------------------------------------------------------------*/
-                        await fetchShopList();
-                        await convertToCoords();
-                        printMarker();
+                        Get.to(const SearchScreen(),
+                            transition: Transition.noTransition);
                       },
                       child: const Text(
                         "search",
@@ -572,11 +554,15 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        onTap: () {
-          // selectedCardsIndex = [];
-          // selectedCards.add(cardName);
+        onTap: () async {
           selectedCard = cardName;
           setState(() {});
+          for (int i = 0; i < theCardList.length; i++) {
+            if (theCardList[i] == cardName) clickedCardIndex = i;
+          }
+          await fetchShopList();
+          await convertToCoords();
+          printMarker();
         },
       ),
     );
