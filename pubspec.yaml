@@ -74,7 +74,7 @@ flutter:
      - assets/images/CardmapLogo.png
      - assets/images/background.jpeg
      - assets/images/hamzzi.jpeg
-     - assets/json/seoul.json
+     - assets/json/서울 사랑 상품권.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

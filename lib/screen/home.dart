@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:cardmap/model/market_model.dart';
-import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/more.dart';
+import 'package:cardmap/screen/search.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,26 +22,31 @@ class _HomePageState extends State<HomePage> {
   late NCameraPosition initCameraPosition;
   final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
-  List selectedCards = [];
-  List selectedCardsIndex = [];
-  bool clickedChecked = false;
-  List items = [];
-  List findItems = []; // ì°¾ê³ ? ?•˜?Š” ë²”ìœ„ ?‚´?— ?ˆ?Š” ëª¨ë“  ì£¼ì†Œ ë¦¬ìŠ¤?Š¸
-  List shop = []; //ê°?ë§¹ì  ?•˜?‚˜ë¥? ????¥?•˜?Š” ë³??ˆ˜
+
+  String selectedCard = '';
+  List<List<dynamic>> items = [[]];
+  List findItems = []; // ì°¾ê³ ì í•˜ëŠ” ë²”ìœ„ ë‚´ì— ìˆëŠ” ëª¨ë“  ì£¼ì†Œ ë¦¬ìŠ¤íŠ¸
+  List shop = []; //ê°€ë§¹ì  í•˜ë‚˜ë¥¼ ì €ì¥í•˜ëŠ” ë³€ìˆ˜
+
   late Map<String, dynamic> location;
   late List<String>
-      address; // fetchAddress ?‹¤?–‰?–ˆ?„ ?•Œ ë¦¬í„´ ë°›ëŠ” ë³??ˆ˜, ì£¼ì†Œë¥? ì¶œë ¥?•œ?‹¤.
+      address; // fetchAddress ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½ ë¦¬í„´ ë°›ëŠ” ï¿½??ï¿½ï¿½, ì£¼ì†Œï¿½? ì¶œë ¥?ï¿½ï¿½?ï¿½ï¿½.
   // List<Map<String, dynamic>> findCoords = [];
   List<MarketModel> findCoords = [];
+  late String typeOfAddress;
+  late String? addressCheck;
+  List<dynamic> theCardList = [];
+  int clickedCardIndex = 0;
+  String hi = 'seoul';
 
   Map<String, String> headerss = {
-    "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // ê°œì¸ ?´?¼?´?–¸?Š¸ ?•„?´?””
+    "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // ê°œì¸ ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½
     "X-NCP-APIGW-API-KEY":
-        "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // ê°œì¸ ?‹œ?¬ë¦? ?‚¤
+        "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // ê°œì¸ ?ï¿½ï¿½?ï¿½ï¿½ï¿½? ?ï¿½ï¿½
   };
   @override
   void initState() {
-    // ?˜„?¬ ?œ„ì¹˜ë?? ë°›ì•„?˜¤ê¸?
+    // ?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½ì¹˜ï¿½?? ë°›ì•„?ï¿½ï¿½ï¿½?
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((value) {
       position = value;
@@ -101,35 +108,40 @@ class _HomePageState extends State<HomePage> {
       myjsonDongNumber2,
     ];
 
-    print(jsonRoadAddressData);
-    print("roadAddr = $roadAddress");
-    print("addr = $address");
-
-    return roadAddress;
+    addressCheck = items[0][clickedCardIndex]['road_addr'];
+    if (addressCheck == null) {
+      typeOfAddress = 'addr';
+      return address;
+    } else {
+      typeOfAddress = 'road_addr';
+      return roadAddress;
+    }
   }
 
-  Map<String, dynamic> findShop(List<String> roadAddress) {
-    // ?›?•˜?Š” ì£¼ì†Œ?˜ ê°?ë§¹ì ?„ ê°?? ¸?˜¨?‹¤.
-    shop = items
-        .where((element) =>
-            element['road_addr'].toString().contains(roadAddress[1]))
-        .toList();
-    print(roadAddress[1]);
-    print(shop);
 
-    shop = shop
-        .where((element) => element['road_addr']
-            .toString()
-            .contains('${roadAddress[2]} ${roadAddress[3]}'))
-        .toList();
-    print(roadAddress[2]);
-    print(shop);
+  // Map<String, dynamic> findShop(List<String> roadAddress) {
+  //   // ì›í•˜ëŠ” ì£¼ì†Œì˜ ê°€ë§¹ì ì„ ê°€ì ¸ì˜¨ë‹¤.
+  //   shop = items
+  //       .where((element) =>
+  //           element['road_addr'].toString().contains(roadAddress[1]))
+  //       .toList();
+  //   print(roadAddress[1]);
+  //   print(shop);
 
-    return (shop[0]);
-  }
+  //   shop = shop
+  //       .where((element) => element['road_addr']
+  //           .toString()
+  //           .contains('${roadAddress[2]} ${roadAddress[3]}'))
+  //       .toList();
+  //   print(roadAddress[2]);
+  //   print(shop);
+
+  //   return (shop[0]);
+  // }
+
 
   Future<List<String>> cameraLocation() async {
-    // ì¹´ë©”?¼ ?œ„ì¹˜ë?? ì£¼ì†Œë¡? ë³??™˜?•œ?‹¤.
+    // ì¹´ë©”?ï¿½ï¿½ ?ï¿½ï¿½ì¹˜ï¿½?? ì£¼ì†Œï¿½? ï¿½??ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½.
     late List<String> cameraAddress;
     NCameraPosition cameraPosition = await mapController.getCameraPosition();
     mapController.clearOverlays();
@@ -144,22 +156,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> readJsonFile() async {
-    final String response =
-        await rootBundle.loadString('assets/json/seoul.json');
-    final data = await json.decode(response);
-    setState(() {
-      items = data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
-      print("..number = ${items.length}");
-    });
-    print('readJsonFile');
+    await getCardList();
+    for (var i = 0; i < theCardList.length; i++) {
+      final String response =
+          await rootBundle.loadString('assets/json/${theCardList[i]}.json');
+      final data = await json.decode(response);
+      setState(() {
+        items[i] = data[
+            "${theCardList[i]}"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+        print("..number = ${items[i].length}");
+      });
+    }
   }
 
   Future<void> fetchShopList() async {
-    // ?›?•˜?Š” ë¬¸ì?—´?„ ?¬?•¨?•˜?Š” ëª©ë¡?“¤?„ listë¡? ????¥?•˜?Š” ?•¨?ˆ˜
+
+    // ì›í•˜ëŠ” ë¬¸ìì—´ì„ í¬í•¨í•˜ëŠ” ëª©ë¡ë“¤ì„ listë¡œ ì €ì¥í•˜ëŠ” í•¨ìˆ˜
+    print('fetch shop list start');
     List<String> findlist = await cameraLocation();
-    findItems = items
-        .where(
-            (element) => element['road_addr'].toString().contains(findlist[2]))
+    findItems = items[clickedCardIndex]
+        .where((element) =>
+            element[typeOfAddress].toString().contains(findlist[2]))
         .toList();
     print(findItems);
     print("Fetch start!");
@@ -278,7 +295,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   NAddableOverlay makeOverlay({
-    // marker ?•˜?‚˜ ?ƒ?„±?•œ?‹¤.
+    // marker ?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½.
     required NLatLng position,
     required String id,
   }) {
@@ -296,7 +313,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void setMarker(int index) {
-    //marker?˜ ?™?‘?„ ì§?? •?•˜ê³?, ?•± ?™”ë©´ì— ?„?š´?‹¤.
+    //marker?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ï¿½??ï¿½ï¿½?ï¿½ï¿½ï¿½?, ?ï¿½ï¿½ ?ï¿½ï¿½ë©´ì— ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½.
     final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
         id: '$index',
         position: NLatLng(double.parse(findCoords[index].lat!),
@@ -304,6 +321,7 @@ class _HomePageState extends State<HomePage> {
 
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
+
       await directGuide();
     });
 
@@ -311,7 +329,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // NAddableOverlay changeOverlay({
-  //   // marker ?´ë¦? ?‹œ marker?˜ UI ë³?ê²?
+  //       // marker í´ë¦­ ì‹œ markerì˜ UI ë³€ê²½
   //   required NLatLng position,
   //   required String id,
   // }) {
@@ -327,8 +345,9 @@ class _HomePageState extends State<HomePage> {
   //   //return NMarker(id: overlayId, position: point);
   // }
 
+
   void printMarker() {
-    //?™”ë©´ì— ?„?š°?Š” ê³¼ì •?„ findCoords ë§Œí¼ ë°˜ë³µ?•œ?‹¤.
+    //?ï¿½ï¿½ë©´ì— ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ê³¼ì •?ï¿½ï¿½ findCoords ë§Œí¼ ë°˜ë³µ?ï¿½ï¿½?ï¿½ï¿½.
     print("printMarker start !");
     for (int i = 0; i < findCoords.length; i++) {
       setMarker(i);
@@ -339,7 +358,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void infoWindow(int index) async {
-    // marker ë¥? ?´ë¦??–ˆ?„ ?•Œ, ?ƒ?„¸ ? •ë³´ë?? ?„?›Œì¤??‹¤.
+
+    // marker ë¥¼ í´ë¦­í–ˆì„ ë•Œ, ìƒì„¸ ì •ë³´ë¥¼ ë„ì›Œì¤€ë‹¤.
     if (!mounted) return;
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -355,7 +375,9 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(
+
                   height: 10,
+
                 ),
                 // Icon(Icons.l
                 Text(
@@ -379,7 +401,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 if (findCoords[index].phone != null)
                   Text(
-                    '? „?™”ë²ˆí˜¸ : ${findCoords[index].phone}',
+                    '?ï¿½ï¿½?ï¿½ï¿½ë²ˆí˜¸ : ${findCoords[index].phone}',
                     style: const TextStyle(
                       fontSize: 18,
                     ),
@@ -390,9 +412,23 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
+  Future getCardList() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email!)
+        .get()
+        .then((snapshot) {
+      theCardList = snapshot.get('cardlist');
+    });
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    setCards(context);
+    setState(() {
+      getCardList();
+    });
 
     return Scaffold(
       key: _key, //drawer
@@ -402,9 +438,9 @@ class _HomePageState extends State<HomePage> {
           isReady
               ? NaverMap(
                   options: NaverMapViewOptions(
-                    // naver map ?˜µ?…˜?„ ?„¸?Œ…?•˜?Š” ?œ„? ¯
+                    // naver map ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½
                     initialCameraPosition: initCameraPosition,
-                    locationButtonEnable: true, // ?˜„ ?œ„ì¹˜ë?? ?‚˜????‚´?Š” ë²„íŠ¼
+                    locationButtonEnable: true, // ?ï¿½ï¿½ ?ï¿½ï¿½ì¹˜ï¿½?? ?ï¿½ï¿½????ï¿½ï¿½?ï¿½ï¿½ ë²„íŠ¼
                     mapType: NMapType.basic,
                     nightModeEnable: true,
                     extent: const NLatLngBounds(
@@ -414,11 +450,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onMapReady: (controller) async {
                     // NaverMap.setLocation(locationSorce)
-                    await readJsonFile(); //ê°?ë§¹ì  ? •ë³? ?½?–´?˜¤ê¸?
+                    await readJsonFile(); //ï¿½?ë§¹ì  ?ï¿½ï¿½ï¿½? ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ï¿½?
 
                     mapController = controller;
 
-                    print("³×ÀÌ¹ö ¸Ê ·ÎµùµÊ!");
+                    print("ï¿½ï¿½ï¿½Ì¹ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½!");
                   },
                 )
               : Container(),
@@ -433,7 +469,7 @@ class _HomePageState extends State<HomePage> {
                     width: 20,
                   ),
                   Container(
-                    // ê²??ƒ‰ì°? ë²„íŠ¼
+                    // ï¿½??ï¿½ï¿½ï¿½? ë²„íŠ¼
                     width: 320,
                     height: 50,
                     decoration: const BoxDecoration(
@@ -448,12 +484,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        // Get.to(const SearchScreen(),
-                        //     transition: Transition.noTransition);
-                        /*------------------------------------------------------------------------------------------*/
-                        await fetchShopList();
-                        await convertToCoords();
-                        printMarker();
+                        Get.to(const SearchScreen(),
+                            transition: Transition.noTransition);
                       },
                       child: const Text(
                         "search",
@@ -465,7 +497,7 @@ class _HomePageState extends State<HomePage> {
                     width: 10,
                   ),
                   Container(
-                    // ?”ë³´ê¸°???
+                    // ?ï¿½ï¿½ë³´ê¸°???
                     width: 50,
                     height: 50,
                     decoration: const BoxDecoration(
@@ -500,23 +532,21 @@ class _HomePageState extends State<HomePage> {
                 height: 29,
                 width: 420,
                 child: ListView(
-                  //ì¹´ë“œ ?Š¤?¬ë¡?
+                  //ì¹´ë“œ ?ï¿½ï¿½?ï¿½ï¿½ï¿½?
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
-                    for (int i = 0;
-                        i <
-                            (context
-                                .watch<SelectedCard>()
-                                .theFinalSelectedCard
-                                .length);
-                        i++)
-                      if (selectedCardsIndex[i] == '0')
-                        cardButton(
-                            "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
+                    for (int i = 0; i < (theCardList.length); i++)
+                      // if (selectedCardsIndex[i] == '0')
+                      //   cardButton(
+                      //       "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}")
+                      // else
+                      //   cardButton10(
+                      //       "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
+                      if (selectedCard == "${theCardList[i]}")
+                        cardButton10("${theCardList[i]}")
                       else
-                        cardButton10(
-                            "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
+                        cardButton("${theCardList[i]}"),
                   ],
                 ),
               ),
@@ -527,25 +557,25 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void setCards(BuildContext context) {
-    for (int i = 0;
-        i < (Provider.of<SelectedCard>(context).theFinalSelectedCard.length);
-        i++) {
-      clickedChecked = false;
-      for (int j = 0; j < selectedCards.length; j++) {
-        if (Provider.of<SelectedCard>(context).theFinalSelectedCard[i] ==
-            selectedCards[j]) {
-          clickedChecked = true;
-          break;
-        }
-      }
-      if (clickedChecked == true) {
-        selectedCardsIndex.add('1');
-      } else {
-        selectedCardsIndex.add('0');
-      }
-    }
-  }
+  // void setCards(BuildContext context) {
+  //   for (int i = 0;
+  //       i < (Provider.of<SelectedCard>(context).theFinalSelectedCard.length);
+  //       i++) {
+  //     clickedChecked = false;
+  //     for (int j = 0; j < selectedCards.length; j++) {
+  //       if (Provider.of<SelectedCard>(context).theFinalSelectedCard[i] ==
+  //           selectedCards[j]) {
+  //         clickedChecked = true;
+  //         break;
+  //       }
+  //     }
+  //     if (clickedChecked == true) {
+  //       selectedCardsIndex.add('1');
+  //     } else {
+  //       selectedCardsIndex.add('0');
+  //     }
+  //   }
+  // }
 
   // public void onMapReady(@NonNull NaverMap naverMap){
   //   this.naverMap = naverMap;
@@ -578,10 +608,15 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        onTap: () {
-          selectedCardsIndex = [];
-          selectedCards.add(cardName);
+        onTap: () async {
+          selectedCard = cardName;
           setState(() {});
+          for (int i = 0; i < theCardList.length; i++) {
+            if (theCardList[i] == cardName) clickedCardIndex = i;
+          }
+          await fetchShopList();
+          await convertToCoords();
+          printMarker();
         },
       ),
     );
@@ -613,8 +648,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onTap: () {
-          selectedCardsIndex = [];
-          selectedCards.remove(cardName);
+          // selectedCardsIndex = [];
+          // selectedCards.remove(cardName);
+          selectedCard = '';
           setState(() {});
         },
       ),

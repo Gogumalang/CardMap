@@ -1,5 +1,6 @@
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,9 @@ class _CardSelectionState extends State<CardSelection> {
   String pClicked = '서울';
   String cClicked = '전체';
   String cardClicked = '';
+  List<dynamic> theCardList = [];
+  List clickedCardList = [];
+  List clickedCardListFinal = [];
 
   final provinceList = [
     '서울',
@@ -76,7 +80,7 @@ class _CardSelectionState extends State<CardSelection> {
 
   final cardList = [
     [
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      ['아동 복지 카드', '문화 누리 카드', '서울 사랑 상품권'],
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
@@ -279,52 +283,38 @@ class _CardSelectionState extends State<CardSelection> {
   ];
 
   Future<void> saveUserCards() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    print('middle');
-    await firestore
-        .collection("cars")
-        .doc("123456789")
-        .collection("options")
-        .doc()
-        .set({
-      "navigation": true,
-      "color": "black",
+    print('start');
+
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance.collection("users").doc(user.email!).set({
+      "cardlist": Provider.of<SelectedCard>(context, listen: false)
+          .theFinalSelectedCard,
     });
     print("idek");
   }
 
+  Future getCardList() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email!)
+        .get()
+        .then((snapshot) {
+      theCardList = snapshot.get('cardlist');
+    });
+    clickedCardList = theCardList;
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getCardList();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(Provider.of<SelectedCard>(context).theFinalSelectedCard);
-
-    List clickedCardList =
-        Provider.of<SelectedCard>(context).theFinalSelectedCard;
-
-    List clickedCardListFinal = [];
-    print(clickedCardList);
-    print(clickedCardListFinal);
-
-    for (int h = 0; h < clickedCardList.length; h++) {
-      for (int i = 0; i < provinceList.length; i++) {
-        if (provinceList[i] == clickedCardList[h].substring(1, 3)) {
-          for (int k = 0; k < cardList[i][0].length; k++) {
-            if (cardList[i][0][k] == clickedCardList[h].substring(5)) {
-              cardListIndex[i][0][k] = 1;
-            }
-          }
-        } else {
-          for (int j = 0; j < cityList[i].length; j++) {
-            if (cityList[i][j] == clickedCardList[h].substring(1, 3)) {
-              for (int k = 0; k < cardList[i][j].length; k++) {
-                if (cardList[i][j][k] == clickedCardList[h].substring(5)) {
-                  cardListIndex[i][j][k] = 1;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    refreshCardListIndex(clickedCardList);
     container1(String location) {
       return Container(
         width: 91,
@@ -432,11 +422,7 @@ class _CardSelectionState extends State<CardSelection> {
         child: TextButton(
           onPressed: () {
             cardClicked = location;
-            if (cClicked == '전체') {
-              clickedCardList.add("($pClicked) $location");
-            } else {
-              clickedCardList.add("($cClicked) $location");
-            }
+            clickedCardList.add(location);
             for (int i = 0; i < provinceList.length; i++) {
               if (provinceList[i] == pClicked) {
                 for (int j = 0; j < cityList[i].length; j++) {
@@ -453,7 +439,7 @@ class _CardSelectionState extends State<CardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -483,11 +469,7 @@ class _CardSelectionState extends State<CardSelection> {
         ),
         child: TextButton(
           onPressed: () {
-            if (cClicked == '전체') {
-              clickedCardList.remove("($pClicked) $location");
-            } else {
-              clickedCardList.remove("($cClicked) $location");
-            }
+            clickedCardList.remove(location);
             for (int i = 0; i < provinceList.length; i++) {
               if (provinceList[i] == pClicked) {
                 for (int j = 0; j < cityList[i].length; j++) {
@@ -504,7 +486,7 @@ class _CardSelectionState extends State<CardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -555,20 +537,10 @@ class _CardSelectionState extends State<CardSelection> {
                   onPressed: () {
                     clickedCardList.remove(location);
                     for (int i = 0; i < provinceList.length; i++) {
-                      if (provinceList[i] == location.substring(1, 3)) {
-                        for (int k = 0; k < cardList[i][0].length; k++) {
-                          if (cardList[i][0][k] == location.substring(5)) {
-                            cardListIndex[i][0][k] = 0;
-                          }
-                        }
-                      } else {
-                        for (int j = 0; j < cityList[i].length; j++) {
-                          if (cityList[i][j] == location.substring(1, 3)) {
-                            for (int k = 0; k < cardList[i][j].length; k++) {
-                              if (cardList[i][j][k] == location.substring(5)) {
-                                cardListIndex[i][j][k] = 0;
-                              }
-                            }
+                      for (int j = 0; j < cityList[i].length; j++) {
+                        for (int k = 0; k < cardList[i][j].length; k++) {
+                          if (cardList[i][j][k] == location) {
+                            cardListIndex[i][j][k] = 0;
                           }
                         }
                       }
@@ -769,21 +741,11 @@ class _CardSelectionState extends State<CardSelection> {
                 onPressed: () {
                   clickedCardListFinal = clickedCardList;
 
-                  // for (int i = 0; i < provinceList.length; i++) {
-                  //   for (int j = 0; j < cityList[i].length; j++) {
-                  //     for (int k = 0; k < cardList[i][j].length; k++) {
-                  //       cardListIndex[i][j][k] = 0;
-                  //       container3(cardList[i][j][k]);
-                  //     }
-                  //   }
-                  // }
                   Provider.of<SelectedCard>(context, listen: false)
                       .updateCardList(clickedCardListFinal);
 
-                  //clickedCardList.clear();
                   setState(() {});
                   saveUserCards();
-
                   Get.back();
                 },
                 child: const Text(
@@ -834,5 +796,19 @@ class _CardSelectionState extends State<CardSelection> {
         ],
       ),
     );
+  }
+
+  void refreshCardListIndex(List<dynamic> clickedCardList) {
+    for (int h = 0; h < clickedCardList.length; h++) {
+      for (int i = 0; i < provinceList.length; i++) {
+        for (int j = 0; j < cityList[i].length; j++) {
+          for (int k = 0; k < cardList[i][j].length; k++) {
+            if (cardList[i][j][k] == clickedCardList[h]) {
+              cardListIndex[i][j][k] = 1;
+            }
+          }
+        }
+      }
+    }
   }
 }

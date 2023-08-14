@@ -1,6 +1,6 @@
 // import 'dart:html';
 
-import 'package:cardmap/screen/cardselection.dart';
+import 'package:cardmap/screen/firstcardselection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -59,7 +59,7 @@ class SignUpPageState extends State<SignUpPage> {
                             child: const Text('확인'),
                             onPressed: () {
                               Navigator.of(context).pop();
-                              Get.to(const CardSelection(),
+                              Get.to(const FirstCardSelection(),
                                   transition: Transition.noTransition);
                             },
                           ),

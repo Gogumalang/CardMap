@@ -1,9 +1,8 @@
-import 'package:cardmap/provider/selected_card.dart';
 import 'package:cardmap/screen/cardselection.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
 class MorePage extends StatefulWidget {
   const MorePage({
@@ -16,15 +15,28 @@ class MorePage extends StatefulWidget {
 
 class _MorePageState extends State<MorePage> {
   CardSelection card = const CardSelection();
-
   final user = FirebaseAuth.instance.currentUser!;
+  List<dynamic> theCardList = [];
 
   void signUserOut() {
     FirebaseAuth.instance.signOut();
   }
 
+  Future getCardList() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email!)
+        .get()
+        .then((snapshot) {
+      theCardList = snapshot.get('cardlist');
+    });
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    getCardList();
     return Drawer(
       child: Container(
         color: Colors.white,
@@ -91,15 +103,8 @@ class _MorePageState extends State<MorePage> {
                   ],
                 ),
               ),
-              for (int i = 0;
-                  i <
-                      (context
-                          .watch<SelectedCard>()
-                          .theFinalSelectedCard
-                          .length);
-                  i++)
-                cardList(
-                    "${Provider.of<SelectedCard>(context).theFinalSelectedCard[i]}"),
+              for (int i = 0; i < (theCardList.length); i++)
+                cardList("${theCardList[i]}"),
               const SizedBox(
                 height: 20,
               ),
