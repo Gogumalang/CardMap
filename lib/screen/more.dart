@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cardmap/screen/cardselection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MorePage extends StatefulWidget {
   const MorePage({
@@ -14,6 +18,76 @@ class MorePage extends StatefulWidget {
 }
 
 class _MorePageState extends State<MorePage> {
+  /*------------------------------------------------*/
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.absolute.path;
+  }
+
+  Future<File> _localFile(String fileName) async {
+    final path = await _localPath;
+    print('path $path');
+    return File('$path/json/$fileName');
+  }
+
+  Future<void> download(String fileName) async {
+    File file = await _localFile(fileName);
+    //File("/Users/parkseyoung/Documents/CardMap/assets/json/seyoung.json");
+
+    final downloadTask =
+        FirebaseStorage.instance.ref("files/$fileName").writeToFile(file);
+
+    downloadTask.snapshotEvents.listen((taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          // TODO: Handle this case.
+          print("실행중이다..");
+          break;
+        case TaskState.paused:
+          // TODO: Handle this case.
+          print("멈춤중이다..");
+          break;
+        case TaskState.success:
+          // TODO: Handle this case.
+          print("성공중이다..");
+          break;
+        case TaskState.canceled:
+          // TODO: Handle this case.
+          print("취소중이다..");
+          break;
+        case TaskState.error:
+          // TODO: Handle this case.
+          print("에러중이다..");
+          break;
+      }
+    });
+  }
+
+  Future<void> read_file(String fileName) async {
+    File file = await _localFile(fileName);
+    final String response = await file.readAsString();
+    print(response);
+  }
+
+  Future<int> deleteFile(String fileName) async {
+    try {
+      final file = await _localFile(fileName);
+      await file.delete();
+
+      return 1;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<bool> isExist(String fileName) async {
+    final file = await _localFile(fileName);
+    return await file.exists();
+  }
+
+  /*------------------------------------------------*/
+
   CardSelection card = const CardSelection();
   final user = FirebaseAuth.instance.currentUser!;
   List<dynamic> theCardList = [];
@@ -31,7 +105,9 @@ class _MorePageState extends State<MorePage> {
         .then((snapshot) {
       theCardList = snapshot.get('cardlist');
     });
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -147,7 +223,11 @@ class _MorePageState extends State<MorePage> {
                   "마이페이지",
                   style: TextStyle(color: Colors.black),
                 ),
-                onTap: () {},
+                onTap: () async {
+                  await download('seoul_love.json');
+                  //await read_file('muan_love.json');
+                  //print(await isExist('muan_love.json'));
+                },
               ),
               ListTile(
                 leading: const Icon(
