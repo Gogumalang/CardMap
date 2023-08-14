@@ -46,6 +46,7 @@ dependencies:
   firebase_database: ^10.2.4
   provider: ^6.0.5
   bottom_drawer: ^0.0.5
+  path_provider: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -74,7 +75,9 @@ flutter:
      - assets/images/CardmapLogo.png
      - assets/images/background.jpeg
      - assets/images/hamzzi.jpeg
-     - assets/json/서울 사랑 상품권.json
+     - assets/json/seoul_love.json
+     - assets/json/seoul_adong.json
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

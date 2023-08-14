@@ -41,25 +41,7 @@ class _CardSelectionState extends State<CardSelection> {
   ];
 
   final cityList = [
-    [
-      '전체',
-      '경기',
-      '인천',
-      '부산',
-      '대구',
-      '광주',
-      '대전',
-      '울산',
-      '경남',
-      '경북',
-      '충남',
-      '충북',
-      '전남',
-      '전북',
-      '강원',
-      '제주',
-      '세종',
-    ],
+    ['전체'],
     ['전체'],
     ['전체'],
     ['전체'],
@@ -80,23 +62,10 @@ class _CardSelectionState extends State<CardSelection> {
 
   final cardList = [
     [
-      ['아동 복지 카드', '문화 누리 카드', '서울 사랑 상품권'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      [
+        '서울 아동급식카드',
+        '서울 사랑상품권',
+      ],
     ],
     [
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
@@ -182,23 +151,7 @@ class _CardSelectionState extends State<CardSelection> {
 
   var cardListIndex = [
     [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
+      [0, 0],
     ],
     [
       [0, 0, 0],
@@ -439,7 +392,7 @@ class _CardSelectionState extends State<CardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -486,7 +439,7 @@ class _CardSelectionState extends State<CardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

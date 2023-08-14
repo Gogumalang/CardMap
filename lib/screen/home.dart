@@ -1,15 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cardmap/model/market_model.dart';
 import 'package:cardmap/screen/more.dart';
 import 'package:cardmap/screen/search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey(); //drawer
   bool isReady = false;
   String selectedCard = '';
-  List<List<dynamic>> items = [[]];
+  List<List<dynamic>> items = List.filled(10, [], growable: true);
   List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
   List shop = []; //가맹점 하나를 저장하는 변수
   late Map<String, dynamic> location;
@@ -34,7 +37,28 @@ class _HomePageState extends State<HomePage> {
   late String? addressCheck;
   List<dynamic> theCardList = [];
   int clickedCardIndex = 0;
-  String hi = 'seoul';
+  String downloadCard = 'seoul_adong';
+
+  Map cardNameDictionary = {
+    '옥천 향수OK카드': 'okchun_love',
+    '제주 사랑상품권': 'jeju_love',
+    '제천 화폐(모아)': 'jechun_love',
+    '칠곡 사랑카드': 'chilkok_love',
+    '통영 사랑상품권': 'tongyoung_love',
+    '평택 사랑카드': 'pyeongtack_love',
+    '함평 사랑상품권': 'hampyeong_love',
+    '강원 사랑상품권': 'gangwon_love',
+    '동백전': 'dongback',
+    '부산 아동급식카드': 'busan_adong',
+    '계룡 사랑상품권': 'galong_love',
+    '광주 아동급식카드': 'gwangju_adong',
+    '무안 사랑상품권': 'muan_love',
+    '남원 문화누리카드': 'namwon_munhwa',
+    '산청 사랑상품권': 'sanchung_love',
+    '서울 아동급식카드': 'seoul_adong',
+    '서울 사랑상품권': 'seoul_love',
+    '여수 사랑상품권': 'yeosu_love',
+  };
 
   Map<String, String> headerss = {
     "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // 개인 클라이언트 아이디
@@ -53,6 +77,7 @@ class _HomePageState extends State<HomePage> {
         isReady = true;
       });
     });
+    //download();
 
     super.initState();
   }
@@ -72,6 +97,8 @@ class _HomePageState extends State<HomePage> {
 
     String jsonRoadAddressData = responseRoadAddress.body;
     String jsonAddressData = responseAddress.body;
+    print(jsonRoadAddressData);
+    print(jsonAddressData);
 
     var myjsonGu = jsonDecode(jsonRoadAddressData)["results"][0]['region']
         ['area2']['name'];
@@ -153,12 +180,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> readJsonFile() async {
     await getCardList();
     for (var i = 0; i < theCardList.length; i++) {
-      final String response =
-          await rootBundle.loadString('assets/json/${theCardList[i]}.json');
+      final String response = await rootBundle
+          .loadString('assets/json/${cardNameDictionary[theCardList[i]]}.json');
       final data = await json.decode(response);
       setState(() {
-        items[i] = data[
-            "${theCardList[i]}"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+        items[i] =
+            data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
         print("..number = ${items[i].length}");
       });
     }
@@ -378,6 +405,114 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  // Future<void> download() async {
+  //   /*
+  //   해당 유저의 카드 목록을 firestore 에서 받아온다.
+  //   카드 목록과 assetlist를 비교해서 삭제, 추가를 한다.
+
+  //   */
+
+  //   //Directory appDocDir = await getApplicationDocumentsDirectory();
+  //   File filePath =
+  //       File("/Users/hani/Documents/CardMap/assets/json/$downloadCard.json");
+  //   // File("${appDocDir.absolute.path}/json/seyoung.json");
+
+  //   final downloadTask = FirebaseStorage.instance
+  //       .ref("files/$downloadCard.json")
+  //       .writeToFile(filePath);
+
+  //   downloadTask.snapshotEvents.listen((taskSnapshot) {
+  //     switch (taskSnapshot.state) {
+  //       case TaskState.running:
+  //         // TODO: Handle this case.
+  //         // print("실행중이다..");
+  //         break;
+  //       case TaskState.paused:
+  //         // TODO: Handle this case.
+  //         print("멈춤중이다..");
+  //         break;
+  //       case TaskState.success:
+  //         // TODO: Handle this case.
+  //         print("성공중이다..");
+  //         break;
+  //       case TaskState.canceled:
+  //         // TODO: Handle this case.
+  //         print("취소중이다..");
+  //         break;
+  //       case TaskState.error:
+  //         // TODO: Handle this case.
+  //         print("에러중이다..");
+  //         break;
+  //     }
+  //   });
+  // }
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.absolute.path;
+  }
+
+  Future<File> _localFile(String fileName) async {
+    final path = await _localPath;
+    print('path $path');
+    return File('$path/json/$fileName');
+  }
+
+  Future<void> download(String fileName) async {
+    File file = await _localFile(fileName);
+    //File("/Users/parkseyoung/Documents/CardMap/assets/json/seyoung.json");
+
+    final downloadTask =
+        FirebaseStorage.instance.ref("files/$fileName").writeToFile(file);
+
+    downloadTask.snapshotEvents.listen((taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          // TODO: Handle this case.
+          // print("실행중이다..");
+          break;
+        case TaskState.paused:
+          // TODO: Handle this case.
+          print("멈춤중이다..");
+          break;
+        case TaskState.success:
+          // TODO: Handle this case.
+          print("성공중이다..");
+          break;
+        case TaskState.canceled:
+          // TODO: Handle this case.
+          print("취소중이다..");
+          break;
+        case TaskState.error:
+          // TODO: Handle this case.
+          print("에러중이다..");
+          break;
+      }
+    });
+  }
+
+  Future<void> read_file(String fileName) async {
+    File file = await _localFile(fileName);
+    final String response = await file.readAsString();
+    print(response);
+  }
+
+  Future<int> deleteFile(String fileName) async {
+    try {
+      final file = await _localFile(fileName);
+      await file.delete();
+
+      return 1;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<bool> isExist(String fileName) async {
+    final file = await _localFile(fileName);
+    return await file.exists();
+  }
+
   @override
   Widget build(BuildContext context) {
     setState(() {
@@ -509,26 +644,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  // void setCards(BuildContext context) {
-  //   for (int i = 0;
-  //       i < (Provider.of<SelectedCard>(context).theFinalSelectedCard.length);
-  //       i++) {
-  //     clickedChecked = false;
-  //     for (int j = 0; j < selectedCards.length; j++) {
-  //       if (Provider.of<SelectedCard>(context).theFinalSelectedCard[i] ==
-  //           selectedCards[j]) {
-  //         clickedChecked = true;
-  //         break;
-  //       }
-  //     }
-  //     if (clickedChecked == true) {
-  //       selectedCardsIndex.add('1');
-  //     } else {
-  //       selectedCardsIndex.add('0');
-  //     }
-  //   }
-  // }
 
   Padding cardButton(String cardName) {
     return Padding(
