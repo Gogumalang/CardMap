@@ -10,6 +10,17 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.absolute.path;
+  }
+
+  Future<File> _localFile(String fileName) async {
+    final path = await _localPath;
+    print('path $path');
+    return File('$path/json/$fileName');
+  }
+
   final TextEditingController _filter =
       TextEditingController(); // 검색창에 입력하는 문자열
   FocusNode focusNode = FocusNode();

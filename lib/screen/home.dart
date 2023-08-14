@@ -169,6 +169,7 @@ class _HomePageState extends State<HomePage> {
       items = data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
       print("..number = ${items.length}");
     });
+
     print('readJsonFile');
   }
 
@@ -292,6 +293,7 @@ class _HomePageState extends State<HomePage> {
           position: NLatLng(double.parse(findCoords[index].lat!),
               double.parse(findCoords[index].lon!)),
           id: "$index");
+
       // changeOverlay(
       //     id: '$index',
       //     position: NLatLng(double.parse(findCoords[index].lat!),
@@ -451,12 +453,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        // Get.to(const SearchScreen(),
-                        //     transition: Transition.noTransition);
-                        /*------------------------------------------------------------------------------------------*/
-                        await fetchShopList();
-                        await convertToCoords();
-                        printMarker();
+                        showSearch(context: context, delegate: Search(items));
+                        //   Get.to(const SearchScreen(),
+                        //       transition: Transition.noTransition);
+                        //   /*------------------------------------------------------------------------------------------*/
+                        //   // await fetchShopList();
+                        //   // await convertToCoords();
+                        //   // printMarker();
+                        // },
                       },
                       child: const Text(
                         "search",
@@ -615,5 +619,31 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+}
+
+class Search extends SearchDelegate {
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    // TODO: implement buildLeading
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // TODO: implement buildSuggestions
+    throw UnimplementedError();
   }
 }
