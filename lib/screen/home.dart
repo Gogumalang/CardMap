@@ -24,21 +24,22 @@ class _HomePageState extends State<HomePage> {
   List selectedCardsIndex = [];
   bool clickedChecked = false;
   List items = [];
-  List findItems = []; // ì°¾ê³ ì í•˜ëŠ” ë²”ìœ„ ë‚´ì— ìˆëŠ” ëª¨ë“  ì£¼ì†Œ ë¦¬ìŠ¤íŠ¸
-  List shop = []; //ê°€ë§¹ì  í•˜ë‚˜ë¥¼ ì €ì¥í•˜ëŠ” ë³€ìˆ˜
+  List findItems = []; // ì°¾ê³ ? ?•˜?Š” ë²”ìœ„ ?‚´?— ?ˆ?Š” ëª¨ë“  ì£¼ì†Œ ë¦¬ìŠ¤?Š¸
+  List shop = []; //ê°?ë§¹ì  ?•˜?‚˜ë¥? ????¥?•˜?Š” ë³??ˆ˜
   late Map<String, dynamic> location;
-  late List<String> address; // fetchAddress ì‹¤í–‰í–ˆì„ ë•Œ ë¦¬í„´ ë°›ëŠ” ë³€ìˆ˜, ì£¼ì†Œë¥¼ ì¶œë ¥í•œë‹¤.
+  late List<String>
+      address; // fetchAddress ?‹¤?–‰?–ˆ?„ ?•Œ ë¦¬í„´ ë°›ëŠ” ë³??ˆ˜, ì£¼ì†Œë¥? ì¶œë ¥?•œ?‹¤.
   // List<Map<String, dynamic>> findCoords = [];
   List<MarketModel> findCoords = [];
 
   Map<String, String> headerss = {
-    "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // ê°œì¸ í´ë¼ì´ì–¸íŠ¸ ì•„ì´ë””
+    "X-NCP-APIGW-API-KEY-ID": "73oah8omwy", // ê°œì¸ ?´?¼?´?–¸?Š¸ ?•„?´?””
     "X-NCP-APIGW-API-KEY":
-        "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // ê°œì¸ ì‹œí¬ë¦¿ í‚¤
+        "rEFG1h9twWTR4P2GBIpB7gPIb70PZex3ZIt38hOL" // ê°œì¸ ?‹œ?¬ë¦? ?‚¤
   };
   @override
   void initState() {
-    // í˜„ì¬ ìœ„ì¹˜ë¥¼ ë°›ì•„ì˜¤ê¸°
+    // ?˜„?¬ ?œ„ì¹˜ë?? ë°›ì•„?˜¤ê¸?
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((value) {
       position = value;
@@ -108,7 +109,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Map<String, dynamic> findShop(List<String> roadAddress) {
-    // ì›í•˜ëŠ” ì£¼ì†Œì˜ ê°€ë§¹ì ì„ ê°€ì ¸ì˜¨ë‹¤.
+    // ?›?•˜?Š” ì£¼ì†Œ?˜ ê°?ë§¹ì ?„ ê°?? ¸?˜¨?‹¤.
     shop = items
         .where((element) =>
             element['road_addr'].toString().contains(roadAddress[1]))
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<String>> cameraLocation() async {
-    // ì¹´ë©”ë¼ ìœ„ì¹˜ë¥¼ ì£¼ì†Œë¡œ ë³€í™˜í•œë‹¤.
+    // ì¹´ë©”?¼ ?œ„ì¹˜ë?? ì£¼ì†Œë¡? ë³??™˜?•œ?‹¤.
     late List<String> cameraAddress;
     NCameraPosition cameraPosition = await mapController.getCameraPosition();
     mapController.clearOverlays();
@@ -154,24 +155,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchShopList() async {
-    // ì›í•˜ëŠ” ë¬¸ìì—´ì„ í¬í•¨í•˜ëŠ” ëª©ë¡ë“¤ì„ listë¡œ ì €ì¥í•˜ëŠ” í•¨ìˆ˜
+    // ?›?•˜?Š” ë¬¸ì?—´?„ ?¬?•¨?•˜?Š” ëª©ë¡?“¤?„ listë¡? ????¥?•˜?Š” ?•¨?ˆ˜
     List<String> findlist = await cameraLocation();
     findItems = items
         .where(
             (element) => element['road_addr'].toString().contains(findlist[2]))
         .toList();
+    print(findItems);
     print("Fetch start!");
   }
 
   Future<void> convertToCoords() async {
-    /*------------------------- geocode í™œìš©í•˜ê¸° ------------------------- */
-    // í•´ë‹¹ë˜ëŠ” ì£¼ì†Œë¥¼ ì €ì¥í•œ ë¦¬ìŠ¤íŠ¸ë¥¼ ê°€ì§€ê³ 
-    // í•˜ë‚˜ì”© geocodeë¥¼ í†µí•´ ì¢Œí‘œë¥¼ ë°›ì•„ì˜¨ë‹¤.
-    // ì¢Œí‘œë¥¼ ê°€ì§€ê³  ë³€í™˜í•˜ì—¬ ê·¸ ìë¦¬ì— ë§ˆì»¤ë¥¼ í‘œì‹œí•œë‹¤.
-
-    // ì–´ë–»ê²Œ geocode ë¥¼ ì‚¬ìš©í• ê²ƒì¸ê°€?
-    // String endPoint =
-    //     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
     print("-------------convertToCoords------------------");
     if (findItems.length > 10) {
       for (int i = 0; i < 10; i++) {
@@ -189,18 +183,19 @@ class _HomePageState extends State<HomePage> {
             headers: headerss);
 
         jsonCoords = responseGeocode.body;
-        //print("Im json $jsonCoords");
+        print(jsonCoords);
         if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
-          print("ë©”ë¡±~ ");
         } else {
           lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
           lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
+
           find = MarketModel(lat: lat, lon: lon);
           find.fromJson(findItems[i]);
           print(find.name);
           print(find.lon);
           print("convert lon = $lon");
           print("convert lat = $lat");
+
           findCoords.add(find);
           print("convertToCoods");
           print(find);
@@ -224,13 +219,14 @@ class _HomePageState extends State<HomePage> {
         jsonCoords = responseGeocode.body;
         //print("Im json $jsonCoords");
         if (jsonDecode(jsonCoords)["meta"]["totalCount"] == 0) {
-          print("ë©”ë¡±~ ");
+          //print("ë©”ë¡±~ ");
         } else {
           lon = jsonDecode(jsonCoords)["addresses"][0]['x'];
           lat = jsonDecode(jsonCoords)["addresses"][0]['y'];
           find = MarketModel(lat: lat, lon: lon);
           find.fromJson(findItems[i]);
           print(find.name);
+
           print(find.lon);
           print("convert lon = $lon");
           print("convert lat = $lat");
@@ -242,8 +238,47 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> directGuide() async {
+    String message;
+    print("-------------Get Direction Guide------------------");
+
+    Position currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    http.Response Directionresponse = await http.get(
+        Uri.parse(
+            'https://naveropenapi.apigw.ntruss.com/map-direction-15/v1/driving?start=127.0823,37.5385&goal=127.0838,37.5382'),
+        headers: headerss);
+
+    message = Directionresponse.body;
+    print(message);
+
+    List<dynamic> polylines =
+        jsonDecode(message)["route"]["traoptimal"][0]["path"];
+
+    List<dynamic> coords = [];
+    for (int i = 0; i < polylines.length; i++) {
+      coords.add(polylines[i]);
+    }
+// String toString() {
+//     return 'NLatLng(${lng},${lat})';
+//   }
+    List<NLatLng> coordinates = coords.map((coord) {
+      double longitude = coord[0];
+      double latitude = coord[1];
+      return CustomNLatLng(coord[0], coord[1]);
+    }).toList();
+
+    print(coordinates);
+
+    var polyline = NPolylineOverlay(
+        id: 'test1004', coords: coordinates, color: Colors.blue, width: 1);
+    mapController.addOverlay(polyline);
+    polylines.add(polyline);
+  }
+
   NAddableOverlay makeOverlay({
-    // marker í•˜ë‚˜ ìƒì„±í•œë‹¤.
+    // marker ?•˜?‚˜ ?ƒ?„±?•œ?‹¤.
     required NLatLng position,
     required String id,
   }) {
@@ -261,26 +296,39 @@ class _HomePageState extends State<HomePage> {
   }
 
   void setMarker(int index) {
-    //markerì˜ ë™ì‘ì„ ì§€ì •í•˜ê³ , ì•± í™”ë©´ì— ë„ìš´ë‹¤.
+    //marker?˜ ?™?‘?„ ì§?? •?•˜ê³?, ?•± ?™”ë©´ì— ?„?š´?‹¤.
     final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
         id: '$index',
         position: NLatLng(double.parse(findCoords[index].lat!),
             double.parse(findCoords[index].lon!)));
-    print("test2");
 
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
+      await directGuide();
     });
+
     mapController.addOverlay(overlay);
   }
 
-  // void onMapReady(NaverMap naverMap) {
-  //   NaverMap = naverMap;
-
+  // NAddableOverlay changeOverlay({
+  //   // marker ?´ë¦? ?‹œ marker?˜ UI ë³?ê²?
+  //   required NLatLng position,
+  //   required String id,
+  // }) {
+  //   final overlayId = id;
+  //   final point = position;
+  //   return NMarker(
+  //       id: overlayId,
+  //       position: point,
+  //       icon: const NOverlayImage.fromAssetImage('assets/images/hamzzi.jpeg'),
+  //       size: const Size(200, 200),
+  //       isHideCollidedMarkers: true,
+  //       isHideCollidedSymbols: true);
+  //   //return NMarker(id: overlayId, position: point);
   // }
 
   void printMarker() {
-    //í™”ë©´ì— ë„ìš°ëŠ” ê³¼ì •ì„ findCoords ë§Œí¼ ë°˜ë³µí•œë‹¤.
+    //?™”ë©´ì— ?„?š°?Š” ê³¼ì •?„ findCoords ë§Œí¼ ë°˜ë³µ?•œ?‹¤.
     print("printMarker start !");
     for (int i = 0; i < findCoords.length; i++) {
       setMarker(i);
@@ -291,12 +339,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void infoWindow(int index) async {
-    // marker ë¥¼ í´ë¦­í–ˆì„ ë•Œ, ìƒì„¸ ì •ë³´ë¥¼ ë„ì›Œì¤€ë‹¤.
-    // address = await fetchAddress(
-    //     position.latitude.toString(), position.longitude.toString());
-    // print(address);
-    // location = findShop(address);
-    // print(location);
+    // marker ë¥? ?´ë¦??–ˆ?„ ?•Œ, ?ƒ?„¸ ? •ë³´ë?? ?„?›Œì¤??‹¤.
     if (!mounted) return;
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -312,8 +355,9 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 20,
+                  height: 10,
                 ),
+                // Icon(Icons.l
                 Text(
                   '${findCoords[index].name}',
                   style: const TextStyle(
@@ -335,7 +379,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 if (findCoords[index].phone != null)
                   Text(
-                    'ì „í™”ë²ˆí˜¸ : ${findCoords[index].phone}',
+                    '? „?™”ë²ˆí˜¸ : ${findCoords[index].phone}',
                     style: const TextStyle(
                       fontSize: 18,
                     ),
@@ -358,9 +402,9 @@ class _HomePageState extends State<HomePage> {
           isReady
               ? NaverMap(
                   options: NaverMapViewOptions(
-                    // naver map ì˜µì…˜ì„ ì„¸íŒ…í•˜ëŠ” ìœ„ì ¯
+                    // naver map ?˜µ?…˜?„ ?„¸?Œ…?•˜?Š” ?œ„? ¯
                     initialCameraPosition: initCameraPosition,
-                    locationButtonEnable: true, // í˜„ ìœ„ì¹˜ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ë²„íŠ¼
+                    locationButtonEnable: true, // ?˜„ ?œ„ì¹˜ë?? ?‚˜????‚´?Š” ë²„íŠ¼
                     mapType: NMapType.basic,
                     nightModeEnable: true,
                     extent: const NLatLngBounds(
@@ -369,11 +413,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   onMapReady: (controller) async {
-                    await readJsonFile(); //ê°€ë§¹ì  ì •ë³´ ì½ì–´ì˜¤ê¸°
+                    // NaverMap.setLocation(locationSorce)
+                    await readJsonFile(); //ê°?ë§¹ì  ? •ë³? ?½?–´?˜¤ê¸?
 
                     mapController = controller;
 
-                    print("ë„¤ì´ë²„ ë§µ ë¡œë”©ë¨!");
+                    print("³×ÀÌ¹ö ¸Ê ·ÎµùµÊ!");
                   },
                 )
               : Container(),
@@ -388,7 +433,7 @@ class _HomePageState extends State<HomePage> {
                     width: 20,
                   ),
                   Container(
-                    // ê²€ìƒ‰ì°½ ë²„íŠ¼
+                    // ê²??ƒ‰ì°? ë²„íŠ¼
                     width: 320,
                     height: 50,
                     decoration: const BoxDecoration(
@@ -420,7 +465,7 @@ class _HomePageState extends State<HomePage> {
                     width: 10,
                   ),
                   Container(
-                    // ë”ë³´ê¸°ë€
+                    // ?”ë³´ê¸°???
                     width: 50,
                     height: 50,
                     decoration: const BoxDecoration(
@@ -455,7 +500,7 @@ class _HomePageState extends State<HomePage> {
                 height: 29,
                 width: 420,
                 child: ListView(
-                  //ì¹´ë“œ ìŠ¤í¬ë¡¤
+                  //ì¹´ë“œ ?Š¤?¬ë¡?
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
@@ -501,6 +546,13 @@ class _HomePageState extends State<HomePage> {
       }
     }
   }
+
+  // public void onMapReady(@NonNull NaverMap naverMap){
+  //   this.naverMap = naverMap;
+
+  //   naverMap.setLocationSource(locationSource);
+  //   ActivityCompat.requestPer
+  // }
 
   Padding cardButton(String cardName) {
     return Padding(
@@ -567,5 +619,14 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+}
+
+class CustomNLatLng extends NLatLng {
+  CustomNLatLng(double lng, double lat) : super(lng, lat);
+
+  @override
+  String toString() {
+    return 'NLatLng($latitude,$longitude)';
   }
 }
