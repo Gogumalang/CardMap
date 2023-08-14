@@ -156,6 +156,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> readJsonFile() async {
+
     await getCardList();
     for (var i = 0; i < theCardList.length; i++) {
       final String response =
@@ -322,7 +323,9 @@ class _HomePageState extends State<HomePage> {
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
 
+
       await directGuide();
+
     });
 
     mapController.addOverlay(overlay);
@@ -484,8 +487,16 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        Get.to(const SearchScreen(),
-                            transition: Transition.noTransition);
+
+                        showSearch(context: context, delegate: Search(items));
+                        //   Get.to(const SearchScreen(),
+                        //       transition: Transition.noTransition);
+                        //   /*------------------------------------------------------------------------------------------*/
+                        //   // await fetchShopList();
+                        //   // await convertToCoords();
+                        //   // printMarker();
+                        // },
+
                       },
                       child: const Text(
                         "search",
@@ -658,11 +669,40 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+
+class Search extends SearchDelegate {
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    // TODO: implement buildLeading
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // TODO: implement buildSuggestions
+    throw UnimplementedError();
+
+  }
+}
+
 class CustomNLatLng extends NLatLng {
   CustomNLatLng(double lng, double lat) : super(lng, lat);
 
   @override
   String toString() {
     return 'NLatLng($latitude,$longitude)';
+
   }
 }
