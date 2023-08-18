@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cardmap/provider/selected_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 class CardSelection extends StatefulWidget {
@@ -19,6 +23,27 @@ class _CardSelectionState extends State<CardSelection> {
   List<dynamic> theCardList = [];
   List clickedCardList = [];
   List clickedCardListFinal = [];
+
+  Map cardNameDictionary = {
+    '옥천 향수OK카드': 'okchun_love',
+    '제주 사랑상품권': 'jeju_love',
+    '제천 화폐(모아)': 'jechun_love',
+    '칠곡 사랑카드': 'chilkok_love',
+    '통영 사랑상품권': 'tongyoung_love',
+    '평택 사랑카드': 'pyeongtack_love',
+    '함평 사랑상품권': 'hampyeong_love',
+    '강원 사랑상품권': 'gangwon_love',
+    '동백전': 'dongback',
+    '부산 아동급식카드': 'busan_adong',
+    '계룡 사랑상품권': 'galong_love',
+    '광주 아동급식카드': 'gwangju_adong',
+    '무안 사랑상품권': 'muan_love',
+    '남원 문화누리카드': 'namwon_munhwa',
+    '산청 사랑상품권': 'sanchung_love',
+    '서울 아동급식카드': 'seoul_adong',
+    '서울 사랑상품권': 'seoul_love',
+    '여수 사랑상품권': 'yeosu_love',
+  };
 
   final provinceList = [
     '서울',
@@ -257,6 +282,55 @@ class _CardSelectionState extends State<CardSelection> {
     });
     clickedCardList = theCardList;
     setState(() {});
+  }
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.absolute.path;
+  }
+
+  Future<File> _localFile(String fileName) async {
+    final path = await _localPath;
+    print('path $path');
+    return File('$path/json/$fileName');
+  }
+
+  Future<void> download(String fileName) async {
+    File file = await _localFile(fileName);
+    //File("/Users/parkseyoung/Documents/CardMap/assets/json/seyoung.json");
+
+    final downloadTask =
+        FirebaseStorage.instance.ref("files/$fileName").writeToFile(file);
+
+    downloadTask.snapshotEvents.listen((taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          // TODO: Handle this case.
+          // print("실행중이다..");
+          break;
+        case TaskState.paused:
+          // TODO: Handle this case.
+          print("멈춤중이다..");
+          break;
+        case TaskState.success:
+          // TODO: Handle this case.
+          print("성공중이다..");
+          break;
+        case TaskState.canceled:
+          // TODO: Handle this case.
+          print("취소중이다..");
+          break;
+        case TaskState.error:
+          // TODO: Handle this case.
+          print("에러중이다..");
+          break;
+      }
+    });
+  }
+
+  Future<bool> isExist(String fileName) async {
+    final file = await _localFile(fileName);
+    return await file.exists();
   }
 
   @override
@@ -691,7 +765,7 @@ class _CardSelectionState extends State<CardSelection> {
                   padding: MaterialStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 115, vertical: 16)),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   clickedCardListFinal = clickedCardList;
 
                   Provider.of<SelectedCard>(context, listen: false)
@@ -699,7 +773,18 @@ class _CardSelectionState extends State<CardSelection> {
 
                   setState(() {});
                   saveUserCards();
-                  Get.back();
+                  for (int i = 0; i < clickedCardListFinal.length; i++) {
+                    bool a = await isExist(
+                        '${cardNameDictionary[theCardList[i]]}.json');
+                    print(cardNameDictionary[theCardList[i]]);
+
+                    if (!a) {
+                      await download(
+                          '${cardNameDictionary[theCardList[i]]}.json');
+                    }
+                  }
+
+                  //Get.to(const HomePage(), transition: Transition.noTransition);
                 },
                 child: const Text(
                   '등록하기',
