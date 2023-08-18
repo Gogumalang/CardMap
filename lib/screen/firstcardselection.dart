@@ -42,25 +42,7 @@ class _FirstCardSelectionState extends State<FirstCardSelection> {
   ];
 
   final cityList = [
-    [
-      '전체',
-      '경기',
-      '인천',
-      '부산',
-      '대구',
-      '광주',
-      '대전',
-      '울산',
-      '경남',
-      '경북',
-      '충남',
-      '충북',
-      '전남',
-      '전북',
-      '강원',
-      '제주',
-      '세종',
-    ],
+    ['전체'],
     ['전체'],
     ['전체'],
     ['전체'],
@@ -81,23 +63,10 @@ class _FirstCardSelectionState extends State<FirstCardSelection> {
 
   final cardList = [
     [
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
-      ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
+      [
+        '서울 아동급식카드',
+        '서울 사랑상품권',
+      ],
     ],
     [
       ['아동 복지 카드', '문화 누리 카드', '지역 사랑 카드'],
@@ -423,11 +392,7 @@ class _FirstCardSelectionState extends State<FirstCardSelection> {
         child: TextButton(
           onPressed: () {
             cardClicked = location;
-            if (cClicked == '전체') {
-              clickedCardList.add("($pClicked) $location");
-            } else {
-              clickedCardList.add("($cClicked) $location");
-            }
+            clickedCardList.add(location);
             for (int i = 0; i < provinceList.length; i++) {
               if (provinceList[i] == pClicked) {
                 for (int j = 0; j < cityList[i].length; j++) {
@@ -444,7 +409,7 @@ class _FirstCardSelectionState extends State<FirstCardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -474,11 +439,7 @@ class _FirstCardSelectionState extends State<FirstCardSelection> {
         ),
         child: TextButton(
           onPressed: () {
-            if (cClicked == '전체') {
-              clickedCardList.remove("($pClicked) $location");
-            } else {
-              clickedCardList.remove("($cClicked) $location");
-            }
+            clickedCardList.remove(location);
             for (int i = 0; i < provinceList.length; i++) {
               if (provinceList[i] == pClicked) {
                 for (int j = 0; j < cityList[i].length; j++) {
@@ -495,7 +456,7 @@ class _FirstCardSelectionState extends State<FirstCardSelection> {
             setState(() {});
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
