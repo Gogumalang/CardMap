@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -10,6 +15,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  List items = [];
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.absolute.path;
@@ -21,6 +27,55 @@ class _SearchScreenState extends State<SearchScreen> {
     return File('$path/json/$fileName');
   }
 
+  Future<void> read_file(String fileName) async {
+    File file = await _localFile(fileName);
+    final String response = await file.readAsString();
+    final data = await json.decode(response);
+    setState(() {
+      items = data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+      print("..number = ${items.length}");
+    });
+  }
+
+  Future<void> download(String fileName) async {
+    File file = await _localFile(fileName);
+    //File("/Users/parkseyoung/Documents/CardMap/assets/json/seyoung.json");
+
+    final downloadTask =
+        FirebaseStorage.instance.ref("files/$fileName").writeToFile(file);
+
+    downloadTask.snapshotEvents.listen((taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          // TODO: Handle this case.
+          // print("실행중이다..");
+          break;
+        case TaskState.paused:
+          // TODO: Handle this case.
+          print("멈춤중이다..");
+          break;
+        case TaskState.success:
+          // TODO: Handle this case.
+          print("성공중이다..");
+          break;
+        case TaskState.canceled:
+          // TODO: Handle this case.
+          print("취소중이다..");
+          break;
+        case TaskState.error:
+          // TODO: Handle this case.
+          print("에러중이다..");
+          break;
+      }
+    });
+  }
+  /*
+  저장되어있는 모든 카드들을 리스트로 저장한다. read_file 활용
+  검색하여서 최대 10개의 항목을 띄운다 . 
+  선택하면 해당 부분에 마커와 드로우를 한다. 
+
+  */
+
   final TextEditingController _filter =
       TextEditingController(); // 검색창에 입력하는 문자열
   FocusNode focusNode = FocusNode();
@@ -28,7 +83,6 @@ class _SearchScreenState extends State<SearchScreen> {
   var textStream = FirebaseFirestore.instance
       .collection('Card')
       .snapshots(); // 파이어베이스에 저장된 카드 목록들
-
   _SearchScreenState() {
     // 검색창에 입력하는 모든 순간마다 _searchText 가 최신화가 된다.
     _filter.addListener(() {
@@ -126,11 +180,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     suffixIcon: focusNode.hasFocus
                         ? IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _filter.clear();
-                                _searchText = "";
-                              });
+                            onPressed: () async {
+                              await read_file("jechun_love.json");
+                              //await download("jechun_love.json");
+
+                              // setState(() {
+                              //   _filter.clear();
+                              //   _searchText = "";
+                              // });
                             },
                             icon: const Icon(Icons.cancel, size: 20),
                           )
