@@ -2,15 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cardmap/model/market_model.dart';
 import 'package:cardmap/screen/more.dart';
-import 'package:cardmap/screen/search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -40,7 +37,6 @@ class _HomePageState extends State<HomePage> {
   late String? addressCheck;
   List<dynamic> theCardList = [];
   int clickedCardIndex = 0;
-  String downloadCard = 'seoul_adong';
 
   Map cardNameDictionary = {
     '옥천 향수OK카드': 'okchun_love',
@@ -208,6 +204,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> convertToCoords() async {
     print("-------------convertToCoords------------------");
+    findCoords = [];
     if (findItems.length > 10) {
       for (int i = 0; i < 10; i++) {
         MarketModel find = MarketModel();
@@ -493,6 +490,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
+    print(directory.absolute.path);
     return directory.absolute.path;
   }
 
@@ -502,43 +500,23 @@ class _HomePageState extends State<HomePage> {
     return File('$path/json/$fileName');
   }
 
-  Future<void> download(String fileName) async {
+  Future<void> readFile(String fileName, int i) async {
+    print('read file start');
+    await getCardList();
+    print('1');
     File file = await _localFile(fileName);
-    //File("/Users/parkseyoung/Documents/CardMap/assets/json/seyoung.json");
-
-    final downloadTask =
-        FirebaseStorage.instance.ref("files/$fileName").writeToFile(file);
-
-    downloadTask.snapshotEvents.listen((taskSnapshot) {
-      switch (taskSnapshot.state) {
-        case TaskState.running:
-          // TODO: Handle this case.
-          // print("실행중이다..");
-          break;
-        case TaskState.paused:
-          // TODO: Handle this case.
-          print("멈춤중이다..");
-          break;
-        case TaskState.success:
-          // TODO: Handle this case.
-          print("성공중이다..");
-          break;
-        case TaskState.canceled:
-          // TODO: Handle this case.
-          print("취소중이다..");
-          break;
-        case TaskState.error:
-          // TODO: Handle this case.
-          print("에러중이다..");
-          break;
-      }
-    });
-  }
-
-  Future<void> read_file(String fileName) async {
-    File file = await _localFile(fileName);
+    print('2');
     final String response = await file.readAsString();
+    print('3');
     print(response);
+    final data = await json.decode(response);
+    print('4');
+    setState(() {
+      items[i] =
+          data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+      print("..number = ${items[i].length}");
+    });
+    print('read file end');
   }
 
   Future<int> deleteFile(String fileName) async {
@@ -583,8 +561,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onMapReady: (controller) async {
                     // NaverMap.setLocation(locationSorce)
-                    await readJsonFile(); //�?맹점 ?���? ?��?��?���?
-
+                    await getCardList();
+                    for (int i = 0; i < theCardList.length; i++) {
+                      await readFile(
+                          '${cardNameDictionary[theCardList[i]]}.json', i);
+                    }
                     mapController = controller;
 
                     print("���̹� �� �ε���!");
@@ -617,13 +598,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        //showSearch(context: context, delegate: Search());
-                        Get.to(const SearchScreen(),
-                            transition: Transition.noTransition);
-                        /*------------------------------------------------------------------------------------------*/
-                        // await fetchShopList();
-                        // await convertToCoords();
-                        // printMarker();
+
+                        //showSearch(context: context, delegate: Search(items));
+                        //   Get.to(const SearchScreen(),
+                        //       transition: Transition.noTransition);
+                        //   /*------------------------------------------------------------------------------------------*/
+                        //   // await fetchShopList();
+                        //   // await convertToCoords();
+                        //   // printMarker();
+                        // },
                       },
                       child: const Text(
                         "search",
