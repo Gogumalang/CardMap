@@ -298,13 +298,18 @@ class _HomePageState extends State<HomePage> {
     for (int i = 0; i < polylines.length; i++) {
       coords.add(polylines[i]);
     }
-// String toString() {
-//     return 'NLatLng(${lng},${lat})';
-//   }
-    List<NLatLng> coordinates = coords.map((coord) {
-      double longitude = coord[0];
-      double latitude = coord[1];
-      return CustomNLatLng(coord[0], coord[1]);
+
+    List<NLatLng> coordinates = [];
+    // for (int i = 0; i < coords.length; i++) {
+    //   double lat = coords[i][0];
+    //   double lon = coords[i][1];
+    //   coordinates.add(NLatLng(lat, lon));
+    // }
+
+    coordinates = coords.map((coord) {
+      double longitude = coord[1];
+      double latitude = coord[0];
+      return NLatLng(latitude, longitude);
     }).toList();
 
     print(coordinates);
@@ -593,6 +598,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
+
                         //showSearch(context: context, delegate: Search(items));
                         //   Get.to(const SearchScreen(),
                         //       transition: Transition.noTransition);
@@ -747,6 +753,8 @@ class _HomePageState extends State<HomePage> {
 }
 
 class Search extends SearchDelegate {
+
+  
   @override
   List<Widget>? buildActions(BuildContext context) {
     // TODO: implement buildActions
