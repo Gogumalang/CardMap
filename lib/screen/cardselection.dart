@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cardmap/provider/selected_card.dart';
+import 'package:cardmap/screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -784,7 +785,7 @@ class _CardSelectionState extends State<CardSelection> {
                     }
                   }
 
-                  //Get.to(const HomePage(), transition: Transition.noTransition);
+                  Get.to(const HomePage(), transition: Transition.noTransition);
                 },
                 child: const Text(
                   '등록하기',

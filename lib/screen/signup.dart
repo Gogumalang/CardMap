@@ -286,9 +286,6 @@ class SignUpPageState extends State<SignUpPage> {
                               child: TextButton(
                                 onPressed: () {
                                   signUserUp();
-                                  Get.to(
-                                    const CardSelection(),
-                                  );
                                 },
                                 child: const Center(
                                   child: Text(
