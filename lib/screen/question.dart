@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -78,8 +79,9 @@ class ChatScreenState extends State<ChatScreen> {
 
 class ChatMessage extends StatelessWidget {
   final String _name = "Seo Young";
-  const ChatMessage({super.key, required this.text});
+  ChatMessage({super.key, required this.text});
   final String text;
+  final user = FirebaseAuth.instance.currentUser!;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -98,7 +100,8 @@ class ChatMessage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(_name, style: Theme.of(context).textTheme.headlineSmall),
+              Text(user.email!,
+                  style: Theme.of(context).textTheme.headlineSmall),
               Container(
                 margin: const EdgeInsets.only(top: 5.0),
                 child: Text(text),
