@@ -130,9 +130,8 @@ class _MorePageState extends State<MorePage> {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.settings,
-                    size: 35,
+                  SizedBox(
+                    height: 35,
                   ),
                 ],
               ),
