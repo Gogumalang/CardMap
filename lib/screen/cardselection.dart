@@ -333,6 +333,17 @@ class _CardSelectionState extends State<CardSelection> {
     return await file.exists();
   }
 
+  Future<int> deleteFile(String fileName) async {
+    try {
+      final file = await _localFile(fileName);
+      await file.delete();
+
+      return 1;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   @override
   void initState() {
     getCardList();
@@ -804,7 +815,7 @@ class _CardSelectionState extends State<CardSelection> {
                   padding: MaterialStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 10, vertical: 14)),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   for (int i = 0; i < provinceList.length; i++) {
                     for (int j = 0; j < cityList[i].length; j++) {
                       for (int k = 0; k < cardList[i][j].length; k++) {
@@ -815,6 +826,9 @@ class _CardSelectionState extends State<CardSelection> {
                   }
                   clickedCardList.clear();
                   setState(() {});
+                  // int a;
+                  // a = await deleteFile("seoul_adong.json");
+                  // print(await isExist("seoul_adong.json"));
                 },
                 icon: const Icon(
                   Icons.refresh,
