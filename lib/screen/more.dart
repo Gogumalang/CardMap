@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cardmap/screen/cardselection.dart';
+import 'package:cardmap/screen/question.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -118,10 +119,10 @@ class _MorePageState extends State<MorePage> {
         color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
-            20, //left
-            50, //top
-            20, //right
-            20, //down
+            20,
+            50,
+            20,
+            20,
           ), //const EdgeInsets.only(top: 50),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -129,9 +130,8 @@ class _MorePageState extends State<MorePage> {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.settings,
-                    size: 35,
+                  SizedBox(
+                    height: 35,
                   ),
                 ],
               ),
@@ -212,21 +212,8 @@ class _MorePageState extends State<MorePage> {
                   "문의",
                   style: TextStyle(color: Colors.black),
                 ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.my_library_books_outlined,
-                  color: Colors.lightGreen,
-                ),
-                title: const Text(
-                  "마이페이지",
-                  style: TextStyle(color: Colors.black),
-                ),
-                onTap: () async {
-                  await download('seoul_love.json');
-                  //await read_file('muan_love.json');
-                  //print(await isExist('muan_love.json'));
+                onTap: () {
+                  Get.to(const ChatScreen());
                 },
               ),
               ListTile(

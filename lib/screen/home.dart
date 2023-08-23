@@ -557,13 +557,7 @@ class _HomePageState extends State<HomePage> {
                     child: TextButton(
                       onPressed: () async {
                         showSearch(context: context, delegate: Search(items));
-                        // Get.to(const SearchScreen(),
-                        //     transition: Transition.noTransition);
-                        /*------------------------------------------------------------------------------------------*/
-                        // await fetchShopList();
-                        // await convertToCoords();
-                        // printMarker();
-                        //},
+
                       },
                       child: const Text(
                         "search",
