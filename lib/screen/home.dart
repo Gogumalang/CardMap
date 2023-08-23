@@ -5,11 +5,11 @@ import 'package:cardmap/screen/more.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:cardmap/screen/mapsearch.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   bool isReady = false;
 
   String selectedCard = '';
-  List<List<dynamic>> items = List.filled(10, [], growable: true);
+  List<List<Map<String, dynamic>>> items = List.filled(10, [], growable: true);
   List findItems = []; // 찾고자 하는 범위 내에 있는 모든 주소 리스트
   List shop = []; //가맹점 하나를 저장하는 변수
 
@@ -176,19 +176,19 @@ class _HomePageState extends State<HomePage> {
     return cameraAddress;
   }
 
-  Future<void> readJsonFile() async {
-    await getCardList();
-    for (var i = 0; i < theCardList.length; i++) {
-      final String response = await rootBundle
-          .loadString('assets/json/${cardNameDictionary[theCardList[i]]}.json');
-      final data = await json.decode(response);
-      setState(() {
-        items[i] =
-            data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
-        print("..number = ${items[i].length}");
-      });
-    }
-  }
+  // Future<void> readJsonFile() async {
+  //   await getCardList();
+  //   for (var i = 0; i < theCardList.length; i++) {
+  //     final String response = await rootBundle
+  //         .loadString('assets/json/${cardNameDictionary[theCardList[i]]}.json');
+  //     final data = await json.decode(response);
+  //     setState(() {
+  //       items[i] =
+  //           data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+  //       print("..number = ${items[i].length}");
+  //     });
+  //   }
+  // }
 
   Future<void> fetchShopList() async {
     // 원하는 문자열을 포함하는 목록들을 list로 저장하는 함수
@@ -446,48 +446,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  // Future<void> download() async {
-  //   /*
-  //   해당 유저의 카드 목록을 firestore 에서 받아온다.
-  //   카드 목록과 assetlist를 비교해서 삭제, 추가를 한다.
-
-  //   */
-
-  //   //Directory appDocDir = await getApplicationDocumentsDirectory();
-  //   File filePath =
-  //       File("/Users/hani/Documents/CardMap/assets/json/$downloadCard.json");
-  //   // File("${appDocDir.absolute.path}/json/seyoung.json");
-
-  //   final downloadTask = FirebaseStorage.instance
-  //       .ref("files/$downloadCard.json")
-  //       .writeToFile(filePath);
-
-  //   downloadTask.snapshotEvents.listen((taskSnapshot) {
-  //     switch (taskSnapshot.state) {
-  //       case TaskState.running:
-  //         // TODO: Handle this case.
-  //         // print("실행중이다..");
-  //         break;
-  //       case TaskState.paused:
-  //         // TODO: Handle this case.
-  //         print("멈춤중이다..");
-  //         break;
-  //       case TaskState.success:
-  //         // TODO: Handle this case.
-  //         print("성공중이다..");
-  //         break;
-  //       case TaskState.canceled:
-  //         // TODO: Handle this case.
-  //         print("취소중이다..");
-  //         break;
-  //       case TaskState.error:
-  //         // TODO: Handle this case.
-  //         print("에러중이다..");
-  //         break;
-  //     }
-  //   });
-  // }
-
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     print(directory.absolute.path);
@@ -503,17 +461,17 @@ class _HomePageState extends State<HomePage> {
   Future<void> readFile(String fileName, int i) async {
     print('read file start');
     await getCardList();
-    print('1');
+
     File file = await _localFile(fileName);
-    print('2');
+
     final String response = await file.readAsString();
-    print('3');
+
     print(response);
     final data = await json.decode(response);
-    print('4');
+    List<Map<String, dynamic>> map =
+        (data["items"] as List).map((e) => e as Map<String, dynamic>).toList();
     setState(() {
-      items[i] =
-          data["items"]; //[{name,addr,...},{name,addr,...},{name,addr,...}]
+      items[i] = map; //[{name,addr,...},{name,addr,...},{name,addr,...}]
       print("..number = ${items[i].length}");
     });
     print('read file end');
@@ -598,14 +556,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        //showSearch(context: context, delegate: Search(items));
-                        //   Get.to(const SearchScreen(),
-                        //       transition: Transition.noTransition);
-                        //   /*------------------------------------------------------------------------------------------*/
-                        //   // await fetchShopList();
-                        //   // await convertToCoords();
-                        //   // printMarker();
-                        // },
+                        showSearch(context: context, delegate: Search(items));
+
                       },
                       child: const Text(
                         "search",
@@ -748,32 +700,6 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
-}
-
-class Search extends SearchDelegate {
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    // TODO: implement buildActions
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    // TODO: implement buildLeading
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // TODO: implement buildSuggestions
-    throw UnimplementedError();
   }
 }
 
