@@ -69,7 +69,6 @@ class Search extends SearchDelegate {
         for (Map<String, dynamic> element in item) {
           if (element["name"].toString().contains(query)) {
             suggestionList.add(element);
-            print(suggestionList.last);
             count++;
           }
           if (count == 7) break;
@@ -153,7 +152,7 @@ class _SearchResultState extends State<SearchResult> {
     String lat;
     String jsonCoords;
     String query = result['road_addr'];
-    print(query);
+
     http.Response responseGeocode;
     responseGeocode = await http.get(
         Uri.parse(
@@ -178,23 +177,15 @@ class _SearchResultState extends State<SearchResult> {
 
   Future<void> directGuide(int index) async {
     String message;
-    print("-------------Get Direction Guide------------------");
-
     Position currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     String currentLat = currentPosition.latitude.toString();
     String currentLon = currentPosition.longitude.toString();
-    // http.Response Directionresponse = await http.get(
-    //     Uri.parse(
-    //         'https://naveropenapi.apigw.ntruss.com/map-direction-15/v1/driving?start=127.0823,37.5385&goal=127.0838,37.5382'),
-    //     headers: headerss); // 아직 미완성
-    print("Current.position = $currentLon,$currentLat");
-    print("Find.position = ${find.lon},${find.lat}");
 
     http.Response Directionresponse = await http.get(
         Uri.parse(
             'https://naveropenapi.apigw.ntruss.com/map-direction-15/v1/driving?start=$currentLon,$currentLat&goal=${find.lon},${find.lat}'),
-        headers: headerss);
+        headers: headerss); // 길 찾는 기준은 driving 기준이라서 도보랑 다를 수 있다.
 
     message = Directionresponse.body;
 
@@ -214,20 +205,17 @@ class _SearchResultState extends State<SearchResult> {
       return NLatLng(latitude, longitude);
     }).toList();
 
-    print("First = ${coordinates.first}");
-    print("Last = ${coordinates.last}");
-
-    // var polyline = NPolylineOverlay(
-    //     id: 'test1004', coords: coordinates, color: Colors.blue, width: 1);
-    // mapController.addOverlay(polyline);
-    // polylines.add(polyline);
-
-    var path = NPathOverlay(id: "hoho", coords: coordinates);
+    var path = NPathOverlay(
+      id: "hoho",
+      coords: coordinates,
+      color: Colors.green,
+      width: 10,
+      outlineColor: Colors.green,
+    );
     await mapController.addOverlay(path);
   }
 
   NAddableOverlay makeOverlay({
-    // marker ?��?�� ?��?��?��?��.
     required NLatLng position,
     required String id,
   }) {
@@ -241,11 +229,9 @@ class _SearchResultState extends State<SearchResult> {
         size: const Size(50, 50),
         isHideCollidedMarkers: true,
         isHideCollidedSymbols: true);
-    //return NMarker(id: overlayId, position: point);
   }
 
   void setMarker(int index) {
-    //marker?�� ?��?��?�� �??��?���?, ?�� ?��면에 ?��?��?��.
     final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
         id: '$index',
         position: NLatLng(double.parse(find.lat!), double.parse(find.lon!)));
