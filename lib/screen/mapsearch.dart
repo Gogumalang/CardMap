@@ -176,20 +176,27 @@ class _SearchResultState extends State<SearchResult> {
     });
   }
 
-  Future<void> directGuide() async {
+  Future<void> directGuide(int index) async {
     String message;
     print("-------------Get Direction Guide------------------");
 
     Position currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+    String currentLat = currentPosition.latitude.toString();
+    String currentLon = currentPosition.longitude.toString();
+    // http.Response Directionresponse = await http.get(
+    //     Uri.parse(
+    //         'https://naveropenapi.apigw.ntruss.com/map-direction-15/v1/driving?start=127.0823,37.5385&goal=127.0838,37.5382'),
+    //     headers: headerss); // 아직 미완성
+    print("Current.position = $currentLon,$currentLat");
+    print("Find.position = ${find.lon},${find.lat}");
 
     http.Response Directionresponse = await http.get(
         Uri.parse(
-            'https://naveropenapi.apigw.ntruss.com/map-direction-15/v1/driving?start=127.0823,37.5385&goal=127.0838,37.5382'),
-        headers: headerss); // 아직 미완성
+            'https://naveropenapi.apigw.ntruss.com/map-direction-15/v1/driving?start=$currentLon,$currentLat&goal=${find.lon},${find.lat}'),
+        headers: headerss);
 
     message = Directionresponse.body;
-    print(message);
 
     List<dynamic> polylines =
         jsonDecode(message)["route"]["traoptimal"][0]["path"];
@@ -199,20 +206,24 @@ class _SearchResultState extends State<SearchResult> {
       coords.add(polylines[i]);
     }
 
-    List<NLatLng> coordinates = [];
+    Iterable<NLatLng> coordinates = [];
 
     coordinates = coords.map((coord) {
-      double longitude = coord[1];
-      double latitude = coord[0];
+      double longitude = coord[0];
+      double latitude = coord[1];
       return NLatLng(latitude, longitude);
     }).toList();
 
-    print(coordinates);
+    print("First = ${coordinates.first}");
+    print("Last = ${coordinates.last}");
 
-    var polyline = NPolylineOverlay(
-        id: 'test1004', coords: coordinates, color: Colors.blue, width: 1);
-    mapController.addOverlay(polyline);
-    polylines.add(polyline);
+    // var polyline = NPolylineOverlay(
+    //     id: 'test1004', coords: coordinates, color: Colors.blue, width: 1);
+    // mapController.addOverlay(polyline);
+    // polylines.add(polyline);
+
+    var path = NPathOverlay(id: "hoho", coords: coordinates);
+    await mapController.addOverlay(path);
   }
 
   NAddableOverlay makeOverlay({
@@ -241,8 +252,6 @@ class _SearchResultState extends State<SearchResult> {
 
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
-
-      await directGuide();
     });
 
     mapController.addOverlay(overlay);
@@ -299,6 +308,29 @@ class _SearchResultState extends State<SearchResult> {
                       fontSize: 18,
                     ),
                   ),
+                const SizedBox(
+                  height: 10,
+                ),
+                InkWell(
+                  child: Container(
+                    width: 120,
+                    height: 70,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      color: Colors.lightGreen,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "길찾기",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    directGuide(index);
+                    Navigator.pop(context);
+                  },
+                ),
               ],
             ),
           );
