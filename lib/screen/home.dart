@@ -320,12 +320,19 @@ class _HomePageState extends State<HomePage> {
     // marker ?��?�� ?��?��?��?��.
     required NLatLng position,
     required String id,
+    required String name,
   }) {
     final overlayId = id;
     final point = position;
+    String overlayName = name;
     return NMarker(
         id: overlayId,
         position: point,
+        caption: NOverlayCaption(
+          text: overlayName,
+          color: Colors.lightGreen,
+        ),
+        isCaptionPerspectiveEnabled: true,
         icon:
             const NOverlayImage.fromAssetImage('assets/images/CardmapLogo.png'),
         size: const Size(50, 50),
@@ -337,9 +344,11 @@ class _HomePageState extends State<HomePage> {
   void setMarker(int index) {
     //marker?�� ?��?��?�� �??��?���?, ?�� ?��면에 ?��?��?��.
     final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
-        id: '$index',
-        position: NLatLng(double.parse(findCoords[index].lat!),
-            double.parse(findCoords[index].lon!)));
+      id: '$index',
+      position: NLatLng(double.parse(findCoords[index].lat!),
+          double.parse(findCoords[index].lon!)),
+      name: findCoords[index].name.toString(),
+    );
 
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
@@ -417,7 +426,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 if (findCoords[index].phone != null)
                   Text(
-                    '?��?��번호 : ${findCoords[index].phone}',
+                    '전화번호 : ${findCoords[index].phone}',
                     style: const TextStyle(
                       fontSize: 18,
                     ),
