@@ -45,14 +45,14 @@ class LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       //print(e);
-      if ((e.code == 'user-not-found' && idController.text.isNotEmpty) ||
-          (e.code == 'invalid-email' && idController.text.isNotEmpty)) {
+      if (e.code == 'invalid-email' && idController.text.isNotEmpty) {
+        setState(() {});
+        errorMsg = '이메일 형식이 올바르지 않습니다.';
+      } else if (e.code == 'user-not-found' && idController.text.isNotEmpty) {
         setState(() {});
         errorMsg = '존재하지 않는 이메일 입니다.';
-        //errorMessage('존재하지 않는 이메일 입니다.');
       } else if (e.code == 'wrong-password' && pwController.text.isNotEmpty) {
         setState(() {});
-        //errorMessage('비밀번호가 틀렸습니다.');
         errorMsg = '비밀번호가 틀렸습니다.';
       }
     }
