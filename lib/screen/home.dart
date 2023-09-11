@@ -309,9 +309,9 @@ class _HomePageState extends State<HomePage> {
     var path = NPathOverlay(
       id: "hoho",
       coords: coordinates,
-      color: Colors.green,
-      width: 10,
-      outlineColor: Colors.green,
+      color: Colors.blueAccent,
+      width: 4.5,
+      outlineColor: Colors.blueAccent,
     );
     await mapController.addOverlay(path);
   }
@@ -330,7 +330,8 @@ class _HomePageState extends State<HomePage> {
             const NOverlayImage.fromAssetImage('assets/images/CardmapLogo.png'),
         size: const Size(50, 50),
         isHideCollidedMarkers: true,
-        isHideCollidedSymbols: true);
+        isHideCollidedSymbols: true,
+        isHideCollidedCaptions: false);
     //return NMarker(id: overlayId, position: point);
   }
 
@@ -393,9 +394,8 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 10,
+                  height: 55,
                 ),
-                // Icon(Icons.l
                 Text(
                   '${findCoords[index].name}',
                   style: const TextStyle(
@@ -406,10 +406,13 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(
                   height: 10,
                 ),
-                Text(
-                  '${findCoords[index].road_addr}',
-                  style: const TextStyle(
-                    fontSize: 18,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 6, 30, 20),
+                  child: Text(
+                    '${findCoords[index].road_addr}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -417,26 +420,41 @@ class _HomePageState extends State<HomePage> {
                 ),
                 if (findCoords[index].phone != null)
                   Text(
-                    '?��?��번호 : ${findCoords[index].phone}',
+                    '전화번호 : ${findCoords[index].phone}',
                     style: const TextStyle(
                       fontSize: 18,
                     ),
                   ),
                 const SizedBox(
-                  height: 10,
+                  height: 90,
                 ),
                 InkWell(
                   child: Container(
-                    width: 120,
+                    width: 350,
                     height: 70,
                     decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                       color: Colors.lightGreen,
                     ),
                     child: const Center(
-                      child: Text(
-                        "길찾기",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.drive_eta,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Text(
+                            "길찾기",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 23,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ),
                   ),
