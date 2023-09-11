@@ -8,6 +8,6 @@ class MarketModel {
     name = json['name']; //type error
     road_addr = json['road_addr'];
     addr = json["addr"];
-    phone = json['number'];
+    phone = json['Phone'];
   }
 }
