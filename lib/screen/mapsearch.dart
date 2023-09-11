@@ -218,12 +218,18 @@ class _SearchResultState extends State<SearchResult> {
   NAddableOverlay makeOverlay({
     required NLatLng position,
     required String id,
+    required String name,
   }) {
     final overlayId = id;
     final point = position;
+    String overlayName = name;
     return NMarker(
         id: overlayId,
         position: point,
+        caption: NOverlayCaption(
+          text: overlayName,
+          color: Colors.lightGreen,
+        ),
         icon:
             const NOverlayImage.fromAssetImage('assets/images/CardmapLogo.png'),
         size: const Size(50, 50),
@@ -233,8 +239,10 @@ class _SearchResultState extends State<SearchResult> {
 
   void setMarker(int index) {
     final NAddableOverlay<NOverlay<void>> overlay = makeOverlay(
-        id: '$index',
-        position: NLatLng(double.parse(find.lat!), double.parse(find.lon!)));
+      id: '$index',
+      position: NLatLng(double.parse(find.lat!), double.parse(find.lon!)),
+      name: find.name.toString(),
+    );
 
     overlay.setOnTapListener((overlay) async {
       infoWindow(index);
