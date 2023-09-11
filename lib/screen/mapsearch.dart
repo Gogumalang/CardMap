@@ -208,9 +208,9 @@ class _SearchResultState extends State<SearchResult> {
     var path = NPathOverlay(
       id: "hoho",
       coords: coordinates,
-      color: Colors.green,
-      width: 10,
-      outlineColor: Colors.green,
+      color: Colors.blueAccent,
+      width: 4.5,
+      outlineColor: Colors.blueAccent,
     );
     await mapController.addOverlay(path);
   }
