@@ -273,9 +273,8 @@ class _SearchResultState extends State<SearchResult> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 10,
+                  height: 55,
                 ),
-                // Icon(Icons.l
                 Text(
                   '${find.name}',
                   style: const TextStyle(
@@ -286,10 +285,13 @@ class _SearchResultState extends State<SearchResult> {
                 const SizedBox(
                   height: 10,
                 ),
-                Text(
-                  '${find.road_addr}',
-                  style: const TextStyle(
-                    fontSize: 18,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 6, 30, 20),
+                  child: Text(
+                    '${find.road_addr}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -303,20 +305,35 @@ class _SearchResultState extends State<SearchResult> {
                     ),
                   ),
                 const SizedBox(
-                  height: 10,
+                  height: 90,
                 ),
                 InkWell(
                   child: Container(
-                    width: 120,
+                    width: 350,
                     height: 70,
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
                       color: Colors.lightGreen,
                     ),
                     child: const Center(
-                      child: Text(
-                        "길찾기",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.drive_eta,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Text(
+                            "길찾기",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 23,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ),
                   ),
